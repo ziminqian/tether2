@@ -4,28 +4,46 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import styles from './styles/styles';
 
-export default function App() {
-  const [screen, setScreen] = useState('title');
+import Footer from "./pages/components/Footer"
+import Explore from './pages/Explore';
+import Boards from './pages/Boards';
+import Profile from './pages/Profile';
+
+function AppContent() {
+  const [activeTab, setActiveTab] = useState<'explore' | 'boards' | 'profile'>('explore');
+  const { theme } = useTheme();
+  const styles = globalStyles(theme);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data }) => {
+      console.log("CURRENT SESSION:", data.session);
+    });
+  }, []);
 
   return (
-    <TetherProvider>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView style={styles.container}>
-        {screen === 'title' && <TitleScreen onNext={() => setScreen('contacts')} />}
-        {screen === 'contacts' && <ContactsScreen onNext={() => setScreen('message')} onBack={() => setScreen('title')} />}
-        {screen === 'message' && <MessageScreen onNext={() => setScreen('home')} onBack={() => setScreen('contacts')} />}
-        {screen === 'home' && <HomeScreen onBack={() => setScreen('contacts')} />}
-      </SafeAreaView>
-    </TetherProvider>
+    <View style={styles.container}>
+      <View style={styles.page}>
+        {activeTab === "explore" && <Explore />}
+        {activeTab === "boards" && <Boards />}
+        {activeTab === "profile" && <Profile />}
+      </View>
+      <View style={{flex: 2}}>
+        <Footer activeTab={activeTab} setActiveTab={setActiveTab}/>
+      </View>
+    </View>
   );
 }
 
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default function App() {
+  return (
+     <ThemeProvider>
+      <AuthGate>
+        <ProfileProvider>
+          <LikedBooksProvider>
+            <AppContent />
+          </LikedBooksProvider>
+        </ProfileProvider>
+      </AuthGate>
+    </ThemeProvider>
+  );
+}
