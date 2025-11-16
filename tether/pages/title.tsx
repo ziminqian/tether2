@@ -14,6 +14,9 @@ import {
 import styles from '../styles/styles';
 import { palette } from '../styles/palette';
 
+// HARDCODED TEST CREDENTIALS
+const TEST_PHONE = '1234567890';
+const TEST_PASSWORD = 'test';
 
 export default function Title () {
   const [areaCode, setAreaCode] = useState('+1');
@@ -28,12 +31,22 @@ export default function Title () {
     }
 
     setLoading(true);
-    // Add authentication logic here
-    // await supabase.auth.signInWithPassword({ phone: areaCode + phoneNumber, password });
     
     setTimeout(() => {
+      // Check against hardcoded credentials
+      if (phoneNumber === TEST_PHONE && password === TEST_PASSWORD) {
+        Alert.alert('Success', 'Login successful!');
+        // TODO: Set session/navigation logic here
+        // For now, just show success
+      } else {
+        Alert.alert('Error', 'Invalid phone number or password', [
+          { text: 'OK' }
+        ]);
+      }
       setLoading(false);
     }, 1000);
+
+    // await supabase.auth.signInWithPassword({ phone: areaCode + phoneNumber, password });
   };
 
   return (
@@ -42,23 +55,16 @@ export default function Title () {
       style={styles.container}
     >
       <SafeAreaView style={styles.container}>
-        <ScrollView 
-          contentContainerStyle={styles.loginScrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* Title */}
+        
           <View style={styles.loginLogoContainer}>
             <Text style={styles.titleLarge}>Tether</Text>
             <Text style={styles.titleSubtitleItalic}>Safe Space</Text>
             <Text style={styles.titleSubtitleItalic}>For Difficult Conversations</Text>
           </View>
 
-          {/* Center Image Placeholder */}
-          <View style={styles.imagePlaceholder}>
-            {/* Keep blank for image */}
+          <View style={styles.imagePlaceholder}> {/* update */}
           </View>
 
-          {/* Phone Number Input */}
           <View style={styles.loginInputContainer}>
             <Text style={styles.inputLabel}>Phone Number</Text>
             <View style={styles.loginInputWrapper}>
@@ -77,7 +83,6 @@ export default function Title () {
             </View>
           </View>
 
-          {/* Password Input */}
           <View style={styles.loginInputContainer}>
             <Text style={styles.inputLabel}>Password</Text>
             <View style={styles.loginInputWrapper}>
@@ -94,7 +99,6 @@ export default function Title () {
             </View>
           </View>
 
-          {/* Login Button */}
           <Pressable
             style={[
               styles.loginButtonPrimary,
@@ -111,11 +115,9 @@ export default function Title () {
             )}
           </Pressable>
 
-          {/* Sign Up Link */}
           <View style={styles.signUpLinkContainer}>
             <Text style={styles.signUpLink}>New user? Sign up</Text>
           </View>
-        </ScrollView>
       </SafeAreaView>
     </KeyboardAvoidingView>
   );

@@ -6,7 +6,9 @@ const globalStyles = StyleSheet.create({
   // Containers
   container: {
     flex: 1,
-    backgroundColor: palette.cream, // #FFFBF3
+    backgroundColor: palette.cream,
+    padding: 15,
+
   },
   screen: {
     flex: 1,
