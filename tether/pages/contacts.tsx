@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState } from "react";
-import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, TextInput } from 'react-native';
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, TextInput, Image } from 'react-native';
 import styles from '../styles/styles';
 import { ChevronLeft, Search, ChevronDown } from 'lucide-react-native';
 import { palette } from '../styles/palette';
@@ -14,10 +14,10 @@ interface ContactsProps {
 
 export const Contacts = ({ onNext, onBack, onSearch }: ContactsProps) => {
   const contacts = [
-    { id: '1', name: 'Zafar' },
-    { id: '2', name: 'Yuina' },
-    { id: '3', name: 'Zimin' },
-    { id: '4', name: 'Fayez' },
+    { id: '1', name: 'Zafar'},
+    { id: '2', name: 'Yuina'},
+    { id: '3', name: 'Zimin'},
+    { id: '4', name: 'Fayez'},
   ];
 
   const invites = [
@@ -55,7 +55,7 @@ export const Contacts = ({ onNext, onBack, onSearch }: ContactsProps) => {
           />
         </View>
         <ScrollView>
-          <View style={styles.dropdown}><ChevronDown/><Text style={styles.text}>Friends on Tether</Text></View>
+          <View style={styles.dropdown}><ChevronDown color={theme.button}/><Text style={styles.subheading}>Friends on Tether</Text></View>
           {contacts.map((contact) => (
             <TouchableOpacity 
               key={contact.id} 
@@ -63,15 +63,13 @@ export const Contacts = ({ onNext, onBack, onSearch }: ContactsProps) => {
               onPress={onNext}
             >
               <View style={styles.avatar}>
-                <Text style={styles.text}>
-                  {contact.name.split(' ').map(n => n[0]).join('')}
-                </Text>
+                <Image source = {require('../assets/other/frog.png')}/>
               </View>
               <Text style={styles.text}>{contact.name}</Text>
             </TouchableOpacity>
           
           ))}
-          <View style={styles.dropdown}><ChevronDown/><Text style={styles.text}>Invite to Tether</Text></View>
+          <View style={styles.dropdown}><ChevronDown color={theme.button}/><Text style={styles.subheading}>Invite to Tether</Text></View>
           {invites.map((invite) => (
             <TouchableOpacity 
               key={invite.id} 
@@ -79,9 +77,7 @@ export const Contacts = ({ onNext, onBack, onSearch }: ContactsProps) => {
               onPress={onNext}
             >
               <View style={styles.avatar}>
-                <Text style={styles.text}>
-                  {invite.name.split(' ').map(n => n[0]).join('')}
-                </Text>
+                <Image source = {require('../assets/other/frog.png')}/>
               </View>
               <Text style={styles.text}>{invite.name}</Text>
             </TouchableOpacity>
