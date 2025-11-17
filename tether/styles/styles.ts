@@ -13,8 +13,9 @@ const globalStyles = StyleSheet.create({
   },
   screen: {
     flex: 1,
-    padding: 24,
+    padding: 10,
   },
+
   content: {
     flex: 1,
     justifyContent: 'center',
@@ -210,8 +211,23 @@ const globalStyles = StyleSheet.create({
   heading: {
     fontSize: 28,
     fontWeight: '600',
-    color: palette.mediumBrown,
-    marginBottom: 24,
+    color: palette.slate,
+    marginBottom: 20,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  backButton: {
+    position: 'absolute',
+    justifyContent: "center",
+    left: 20,
+    zIndex: 1,
+  },
+  headingtext: {
+    fontSize: 30,
+    fontWeight: '400',
+    color: palette.slate,
+    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
   },
   subheading: {
     fontSize: 22,
@@ -301,11 +317,6 @@ const globalStyles = StyleSheet.create({
     fontSize: 15,
   },
 
-  // Navigation
-  backButton: {
-    marginBottom: 16,
-    alignSelf: 'flex-start',
-  },
   backText: {
     fontSize: 17,
     color: palette.slate,

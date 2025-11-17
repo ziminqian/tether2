@@ -1,6 +1,7 @@
 import React from 'react';
-import { View, Text, Pressable, SafeAreaView, ScrollView } from 'react-native';
+import { View, Text, Pressable, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
 import styles from '../styles/styles';
+import { ChevronLeft } from 'lucide-react-native';
 import { palette } from '../styles/palette';
 
 interface ContactsProps {
@@ -20,25 +21,26 @@ export const Contacts = ({ onNext, onBack }: ContactsProps) => {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.screen}>
-        <Pressable onPress={onBack} style={styles.backButton}>
-          <Text style={styles.backText}>← Back</Text>
-        </Pressable>
-        
-        <Text style={styles.heading}>Choose Contact</Text>
+        <View style={styles.heading}>
+          <TouchableOpacity onPress={onBack} style={styles.backButton}>
+            <ChevronLeft size={40} color={palette.slate} />
+          </TouchableOpacity>
+          <Text style={styles.headingtext}>Select Contact</Text>
+        </View>
         
           {contacts.map((contact) => (
-            <Pressable 
+            <TouchableOpacity 
               key={contact.id} 
               style={styles.contactCard} 
               onPress={onNext}
             >
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>
+                <Text style={styles.text}>
                   {contact.name.split(' ').map(n => n[0]).join('')}
                 </Text>
               </View>
-              <Text style={styles.contactName}>{contact.name}</Text>
-            </Pressable>
+              <Text style={styles.text}>{contact.name}</Text>
+            </TouchableOpacity>
           ))}
       </View>
     </SafeAreaView>
