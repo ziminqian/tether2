@@ -241,6 +241,25 @@ const globalStyles = StyleSheet.create({
     color: palette.lightBrown,
     lineHeight: 26,
   },
+  search: {
+    flexDirection: "row",
+    justifyContent: "flex-start",
+    padding: 3,
+    borderRadius: 30,
+    height: 35,
+    backgroundColor: theme.bgSecondary,
+    marginLeft: 10,
+    marginRight: 10,
+    marginBottom: 10,
+  },
+  searchContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+  },
+  searchInput: {
+      flex: 1,
+  },
   body: {
     fontSize: 17,
     color: palette.darkBrown,
@@ -372,15 +391,20 @@ const globalStyles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 4,
   },
-
-  // Contact Card
+  dropdown:{
+    flexDirection: "row",
+    marginLeft: 5,
+    marginTop: 10,
+  },
   contactCard: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: palette.lightBeige,
-    padding: 16,
+    padding: 5,
     borderRadius: 16,
-    marginBottom: 8,
+    marginBottom: 10,
+    marginLeft: 20,
+    marginRight: 20,
     shadowColor: palette.shadow,
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.08,

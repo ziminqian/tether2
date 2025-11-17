@@ -1,22 +1,36 @@
 import React from 'react';
-import { View, Text, Pressable, SafeAreaView, ScrollView, TouchableOpacity } from 'react-native';
+import { useState } from "react";
+import { View, Text, SafeAreaView, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import styles from '../styles/styles';
-import { ChevronLeft } from 'lucide-react-native';
+import { ChevronLeft, Search, ChevronDown } from 'lucide-react-native';
 import { palette } from '../styles/palette';
+import theme from '../styles/theme';
 
 interface ContactsProps {
   onNext: () => void;
   onBack: () => void;
+  onSearch: (query: string) => void;
 }
 
-export const Contacts = ({ onNext, onBack }: ContactsProps) => {
+export const Contacts = ({ onNext, onBack, onSearch }: ContactsProps) => {
   const contacts = [
     { id: '1', name: 'Zafar' },
     { id: '2', name: 'Yuina' },
     { id: '3', name: 'Zimin' },
     { id: '4', name: 'Fayez' },
-    { id: '5', name: 'James' },
   ];
+
+  const invites = [
+    { id: '1', name: 'James' },
+    { id: '2', name: 'Charlotte' },
+  ];
+  const [input, setInput] = useState<string>("");
+
+  const handleSearchSubmit = () => {
+        if (input.trim()) {
+            onSearch(input.trim());
+        }
+    };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -28,7 +42,20 @@ export const Contacts = ({ onNext, onBack }: ContactsProps) => {
           </TouchableOpacity>
           <Text style={styles.headingtext}>Select Contact</Text>
         </View>
+        <View style={[styles.search]}>
+          <Search size={20} style={{margin: 5}} color={theme.button}></Search>
+          <TextInput 
+              style={[styles.text, { flex: 1 }]} 
+              value={input} 
+              onChangeText={setInput}
+              onSubmitEditing={handleSearchSubmit}
+              returnKeyType="search"
+              placeholder={"Search contacts"} 
+              placeholderTextColor={theme.textSecondary}
+          />
+        </View>
         <ScrollView>
+          <View style={styles.dropdown}><ChevronDown/><Text style={styles.text}>Friends on Tether</Text></View>
           {contacts.map((contact) => (
             <TouchableOpacity 
               key={contact.id} 
@@ -42,6 +69,23 @@ export const Contacts = ({ onNext, onBack }: ContactsProps) => {
               </View>
               <Text style={styles.text}>{contact.name}</Text>
             </TouchableOpacity>
+          
+          ))}
+          <View style={styles.dropdown}><ChevronDown/><Text style={styles.text}>Invite to Tether</Text></View>
+          {invites.map((invite) => (
+            <TouchableOpacity 
+              key={invite.id} 
+              style={styles.contactCard} 
+              onPress={onNext}
+            >
+              <View style={styles.avatar}>
+                <Text style={styles.text}>
+                  {invite.name.split(' ').map(n => n[0]).join('')}
+                </Text>
+              </View>
+              <Text style={styles.text}>{invite.name}</Text>
+            </TouchableOpacity>
+          
           ))}
         </ScrollView>
       </View>
