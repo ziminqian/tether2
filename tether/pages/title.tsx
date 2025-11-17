@@ -118,7 +118,9 @@ export default function Title () {
           </TouchableOpacity>
 
           <View style={styles.signUpLinkContainer}>
-            <Text style={styles.signUpLink}>New user? Sign up</Text>
+            <TouchableOpacity>
+              <Text style={styles.signUpLink}>New user? Sign up</Text>
+            </TouchableOpacity>
           </View>
       </SafeAreaView>
     </KeyboardAvoidingView>
