@@ -1,6 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Dimensions } from 'react-native';
 import { palette } from './palette';
 import theme from './theme';
+
+const windowWidth = Dimensions.get('window').width;
 
 // Global stylesheet for Tether app using extracted palette
 const globalStyles = StyleSheet.create({
@@ -8,7 +10,6 @@ const globalStyles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: palette.cream,
-
   },
   screen: {
     flex: 1,
@@ -31,11 +32,6 @@ const globalStyles = StyleSheet.create({
   loginContainer: {
     flex: 1,
     backgroundColor: palette.cream,
-  },
-  loginScrollContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    padding: 24,
   },
   loginLogoContainer: {
     alignItems: 'center',
@@ -66,9 +62,10 @@ const globalStyles = StyleSheet.create({
     marginTop: 12,
   },
   titleLarge: {
-    fontSize: 40,
+    fontSize: 50,
     fontWeight: '700',
     textAlign: 'center',
+    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
     color: palette.beige,
     marginBottom: 8,
   },
@@ -76,6 +73,7 @@ const globalStyles = StyleSheet.create({
     fontSize: 16,
     fontStyle: 'italic',
     textAlign: 'center',
+    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
     color: palette.lightBrown,
   },
   imagePlaceholder: {
@@ -85,8 +83,9 @@ const globalStyles = StyleSheet.create({
     marginVertical: 24,
   },
   inputLabel: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '600',
+    fontFamily: "../assets/fonts/AbhayaLibre-Regular.ttf",
     color: palette.mutedBrown,
     marginBottom: 8,
   },
@@ -98,6 +97,8 @@ const globalStyles = StyleSheet.create({
   },
   areaCodeText: {
     fontSize: 16,
+    fontWeight: '700',
+    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
     color: palette.darkBrown,
   },
   loginInputPassword: {
@@ -113,32 +114,38 @@ const globalStyles = StyleSheet.create({
   },
   signUpLink: {
     fontSize: 16,
+    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
     color: palette.mediumBrown,
     textDecorationLine: 'underline',
   },
   loginTitle: {
     fontSize: 32,
     fontWeight: '700',
+    
     color: palette.mediumBrown,
     marginBottom: 4,
     textAlign: 'center',
   },
   loginSubtitle: {
     fontSize: 16,
+    
     color: palette.lightBrown,
     textAlign: 'center',
     opacity: 0.8,
   },
   loginInputContainer: {
+    marginLeft: 16,
+    marginRight: 16,
     marginBottom: 16,
   },
   loginInputWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: palette.lightBeige,
-    borderRadius: 20,
+    backgroundColor: palette.cream,
+    width: windowWidth * 0.9,
+    borderRadius: 30,
     paddingHorizontal: 16,
-    paddingVertical: 4,
+    paddingVertical: 0,
     borderWidth: 1,
     borderColor: palette.lightGray,
   },
@@ -154,11 +161,12 @@ const globalStyles = StyleSheet.create({
   loginButton: {
     backgroundColor: palette.slate,
     padding: 18,
-    borderRadius: 20,
+    borderRadius: 30,
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'center',
     gap: 10,
+    width: windowWidth*0.3,
     marginBottom: 12,
     shadowColor: palette.shadow,
     shadowOffset: { width: 0, height: 2 },
@@ -172,14 +180,11 @@ const globalStyles = StyleSheet.create({
   },
   loginButtonText: {
     color: palette.cream,
-    fontSize: 17,
+    fontSize: 20,
     fontWeight: '700',
+    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
   },
-  loginButtonTextSecondary: {
-    color: palette.mediumBrown,
-    fontSize: 17,
-    fontWeight: '700',
-  },
+
   loginFooterText: {
     textAlign: 'center',
     marginTop: 32,
@@ -242,7 +247,9 @@ const globalStyles = StyleSheet.create({
   },
   text: {
     fontSize: 16,
-    color: palette.lightBrown,
+    fontWeight: '400',
+    color: palette.mediumBrown,
+    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
   },
 
   // Buttons
@@ -315,6 +322,7 @@ const globalStyles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'space-around',
+    color: palette.lightBrown,
     alignItems: 'center',
     margin: 10,
   },

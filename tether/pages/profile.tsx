@@ -50,14 +50,14 @@ export const Profile = ({ onBack }: ProfileProps) => {
       <TouchableOpacity
           onPress={handleLogout}
           disabled={loggingOut}
-          style={styles.logoutLogo}
+          style={styles.loginButton}
         >
           {loggingOut ? (
             <ActivityIndicator size="small" color={theme.buttontext} />
           ) : (
             <>
-              <LogOut size={20} color={theme.text} />
-              <Text style={[styles.text, { fontSize: 16, fontWeight: '600' }]}>
+              <LogOut size={20} color={theme.buttonicon} />
+              <Text style={styles.loginButtonText}>
                 Log Out
               </Text>
             </>

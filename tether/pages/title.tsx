@@ -9,10 +9,13 @@ import {
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
+  TouchableOpacity,
 } from 'react-native';
 import styles from '../styles/styles';
+import { LogIn } from 'lucide-react-native';
 import { palette } from '../styles/palette';
 import useSession from '../utils/useSession';
+import theme from '../styles/theme';
 
 const TEST_PHONE = '1234567890';            // test credentials
 const TEST_PASSWORD = 'test';
@@ -53,7 +56,7 @@ export default function Title () {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={styles.container}
     >
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, styles.centeredContent]}>
         
           <View style={styles.loginLogoContainer}>
             <Text style={styles.titleLarge}>Tether</Text>
@@ -100,20 +103,19 @@ export default function Title () {
             </View>
           </View>
 
-          <Pressable
+          <TouchableOpacity
             style={[
-              styles.loginButton,
-              styles.loginButtonSpacing,
+              styles.loginButton
             ]}
             onPress={handleLogin}
             disabled={loading}
           >
             {loading ? (
-              <ActivityIndicator color={palette.cream} />
+              <ActivityIndicator color={theme.buttonicon} />
             ) : (
-              <Text style={styles.loginButtonTextPrimary}>Login</Text>
+              <><LogIn size={20} color={theme.buttonicon} /><Text style={styles.loginButtonText}>Login</Text></>
             )}
-          </Pressable>
+          </TouchableOpacity>
 
           <View style={styles.signUpLinkContainer}>
             <Text style={styles.signUpLink}>New user? Sign up</Text>

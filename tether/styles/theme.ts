@@ -15,10 +15,11 @@ const theme = {
   //button
   button: palette.slate,  
   buttontext: palette.cream,
+  buttonicon: palette.cream,
   
   // footer
   pressed: palette.sage,
-  notpressed: palette.slate,
+  notpressed: palette.lightBrown,
 
   // ui
   primary: palette.slate,  
