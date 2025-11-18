@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Pressable, Alert, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, Alert, TouchableOpacity, ActivityIndicator, SafeAreaView, ImageBackground } from 'react-native';
 import styles from '../styles/styles';
 import theme from '../styles/theme';
 import { LogOut } from 'lucide-react-native';
@@ -45,24 +45,34 @@ export const Profile = ({ onBack }: ProfileProps) => {
 
 
   return (
-    <View style={styles.imagePlaceholder}>
-      <Text>Profile screen</Text>
-      <TouchableOpacity
-          onPress={handleLogout}
-          disabled={loggingOut}
-          style={styles.loginButton}
+     <ImageBackground 
+          source={require("../assets/backgrounds/light_ombre.png")}
+          style={{ flex: 1, width: '100%', height: '100%' }}
+          resizeMode='cover'
         >
-          {loggingOut ? (
-            <ActivityIndicator size="small" color={theme.buttontext} />
-          ) : (
-            <>
-              <LogOut size={20} color={theme.buttonicon} />
-              <Text style={styles.loginButtonText}>
-                Log Out
-              </Text>
-            </>
-          )}
-        </TouchableOpacity>
-      </View>
+      <SafeAreaView style={{flex: 1}}>g
+        <View style={styles.screen}>
+        <View style={styles.imagePlaceholder}>
+          <Text>Profile screen</Text>
+          <TouchableOpacity
+              onPress={handleLogout}
+              disabled={loggingOut}
+              style={styles.loginButton}
+            >
+              {loggingOut ? (
+                <ActivityIndicator size="small" color={theme.buttontext} />
+              ) : (
+                <>
+                  <LogOut size={20} color={theme.buttonicon} />
+                  <Text style={styles.loginButtonText}>
+                    Log Out
+                  </Text>
+                </>
+              )}
+            </TouchableOpacity>
+          </View>
+          </View>
+        </SafeAreaView>
+      </ImageBackground>
   );
 };
