@@ -132,19 +132,25 @@ export const Profile = ({ onBack }: ProfileProps) => {
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           <View style={styles.screen}>
-            {/* Profile Header */}
             <View style={styles.profileHeader}>
               <View style={styles.profileAvatarRow}>
-                {/* Custom colored icon */}
-                <View style={[styles.profileAvatar, { backgroundColor: palette.cream, borderColor: profile.iconColor }]}>
+                <View style={[styles.profileAvatar, ]}>
                   <Image 
-                    source={require('../assets/other/cute_frog.png')}
-                    style={[styles.profileAvatarImage, {transform: [{ translateX: 3}]}]}
-                    tintColor={profile.iconColor}
+                    source={require('../assets/other/cute_frog_body.png')}
+                    style={[styles.profileAvatarImage,{height:55}, {transform: [{ translateY: 9}, {translateX: -8}]}]}
+                    resizeMode="contain"
+                    tintColor={profile.iconColor}  // Changes body color only
+                  />
+                  <Image 
+                    source={require('../assets/other/cute_frog_outline.png')}
+                    style={[styles.profileAvatarImage, { position: 'absolute' }, {transform: [{ translateY: 9}, {translateX: -8}]}]}
+                    resizeMode="contain"
+                  />
+                  <Image 
+                    source={require('../assets/other/cute_frog_cheeks.png')}
+                    style={[styles.profileAvatarImage, { position: 'absolute'}, {transform: [{ translateY: 6}, {translateX: -4}]}]}
                   />
                 </View>
-
-                {/* Username and Bio */}
                 <View style={styles.profileInfo}>
                   <View style={styles.profileNameRow}>
                     <Text style={styles.profileUsername}>{profile.username}</Text>

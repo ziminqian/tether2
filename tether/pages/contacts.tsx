@@ -90,7 +90,7 @@ export const Contacts = ({ onNext, onBack, onSearch }: ContactsProps) => {
             ))}
           </ScrollView>
         </View>
-      </SafeAreaView>
+        </SafeAreaView>
     </ImageBackground>
     
   );

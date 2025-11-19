@@ -651,7 +651,7 @@ const globalStyles = StyleSheet.create({
     borderRadius: 42.5,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2,
     elevation: 4,
   },
   profileAvatarImage: {
