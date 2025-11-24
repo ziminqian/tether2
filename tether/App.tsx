@@ -7,6 +7,9 @@ import { Portal } from './pages/portal';
 import { Home } from './pages/home';
 import { Profile } from './pages/profile';
 import Welcome from './pages/welcome';
+import Onboard1 from './pages/onboard1';
+import Onboard2 from './pages/onboard2';
+import Onboard3 from './pages/onboard3';
 import Footer from './pages/components/Footer';
 import styles from './styles/styles';
 import AuthGate from './pages/components/AuthGate';
@@ -98,14 +101,26 @@ function AppContent() {
 }
 
 export default function App() {
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'onboard1' | 'onboard2' | 'onboard3' | 'app'>('welcome');
 
   const handleWelcomeContinue = () => {
-    setShowWelcome(false);
+    setCurrentScreen('onboard1');
   };
 
-  // Show welcome page first, before login
-  if (showWelcome) {
+  const handleOnboard1Continue = () => {
+    setCurrentScreen('onboard2');
+  };
+
+  const handleOnboard2Continue = () => {
+    setCurrentScreen('onboard3');
+  };
+
+  const handleOnboard3Continue = () => {
+    setCurrentScreen('app');
+  };
+
+  // Show welcome page first
+  if (currentScreen === 'welcome') {
     return (
       <TetherProvider>
         <View style={styles.container}>
@@ -116,7 +131,43 @@ export default function App() {
     );
   }
 
-  // After welcome page, show login/auth flow
+  // Show onboard1
+  if (currentScreen === 'onboard1') {
+    return (
+      <TetherProvider>
+        <View style={styles.container}>
+          <StatusBar barStyle="dark-content" />
+          <Onboard1 onContinue={handleOnboard1Continue} />
+        </View>
+      </TetherProvider>
+    );
+  }
+
+  // Show onboard2
+  if (currentScreen === 'onboard2') {
+    return (
+      <TetherProvider>
+        <View style={styles.container}>
+          <StatusBar barStyle="dark-content" />
+          <Onboard2 onContinue={handleOnboard2Continue} />
+        </View>
+      </TetherProvider>
+    );
+  }
+
+  // Show onboard3
+  if (currentScreen === 'onboard3') {
+    return (
+      <TetherProvider>
+        <View style={styles.container}>
+          <StatusBar barStyle="dark-content" />
+          <Onboard3 onContinue={handleOnboard3Continue} />
+        </View>
+      </TetherProvider>
+    );
+  }
+
+  // After onboarding, show login/auth flow
   return (
     <TetherProvider>
       <AuthGate>

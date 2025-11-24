@@ -10,6 +10,9 @@ const back = require('../assets/onboard1/backgroundonboard1.png');
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
+const THOUGHT_WIDTH = SCREEN_WIDTH * 0.45;
+const THOUGHT_HEIGHT = SCREEN_HEIGHT * 0.45;
+
 interface Onboard1Props {
   onContinue: () => void;
 }
@@ -26,18 +29,26 @@ export default function Onboard1({ onContinue }: Onboard1Props) {
       resizeMode='cover'
     >
       <View style={styles.container}>
+        {/* Upper left text */}
+        <View style={styles.topTextContainer}>
+          <Text style={styles.topTextLine}>difficult</Text>
+          <Text style={styles.topTextLine}>conversations are</Text>
+          <Text style={styles.topTextLine}>hard</Text>
+        </View>
+
         {/* Left profile image */}
-        <Image 
-          source={leftprofile} 
-          style={styles.leftProfile}
-        />
-        
-        {/* Right image */}
-        <Image 
-          source={rightimage} 
-          style={styles.rightImage}
-        />
-        
+        <View style={styles.peopleContainer}>
+          <Image 
+            source={leftprofile} 
+            style={styles.leftProfile}
+          />
+          
+          {/* Right image */}
+          <Image 
+            source={rightimage} 
+            style={styles.rightProfile}
+          />
+        </View>
         {/* Squiggle */}
         <Image 
           source={squiggle} 
@@ -49,6 +60,9 @@ export default function Onboard1({ onContinue }: Onboard1Props) {
           source={thought} 
           style={styles.thoughtBubble}
         />
+        
+        {/* Bottom center text */}
+        <Text style={styles.helpText}>we're here to help</Text>
         
         {/* Continue Button */}
         <Pressable
@@ -62,6 +76,7 @@ export default function Onboard1({ onContinue }: Onboard1Props) {
   );
 }
 
+
 const styles = StyleSheet.create({
   background: {
     flex: 1,
@@ -72,43 +87,74 @@ const styles = StyleSheet.create({
     flex: 1,
     width: SCREEN_WIDTH,
     height: SCREEN_HEIGHT,
+    overflow: 'visible',
   },
+  topTextContainer: {
+    position: 'absolute',
+    top: SCREEN_HEIGHT * 0.08,
+    left: SCREEN_WIDTH * 0.08,
+    zIndex: 3,
+  },
+  topTextLine: {
+    fontSize: 24,
+    fontFamily: 'Avenir',
+    color: palette.darkGray,
+    lineHeight: 32,
+    fontWeight: '400',
+  },
+  peopleContainer: {
+    flex: 1,
+    position: 'relative',
+    overflow: 'visible',
+  },
+
   leftProfile: {
     position: 'absolute',
-    left: 0,
-    top: SCREEN_HEIGHT * 0.2,
-    width: SCREEN_WIDTH * 0.4,
-    height: SCREEN_HEIGHT * 0.3,
+    left: 6,
+    bottom: 0,               
+    width: SCREEN_WIDTH * 0.6,
+    height: SCREEN_HEIGHT * 0.45,
     resizeMode: 'contain',
   },
-  rightImage: {
+  
+  rightProfile: {
     position: 'absolute',
-    right: 0,
-    top: SCREEN_HEIGHT * 0.3,
+    right: 10,
+    bottom: 0,          
     width: SCREEN_WIDTH * 0.5,
-    height: SCREEN_HEIGHT * 0.4,
+    height: SCREEN_HEIGHT * 0.5,
     resizeMode: 'contain',
   },
   squiggle: {
     position: 'absolute',
-    left: SCREEN_WIDTH * 0.1,
-    top: SCREEN_HEIGHT * 0.5,
-    width: SCREEN_WIDTH * 0.8,
-    height: SCREEN_HEIGHT * 0.2,
+    left: SCREEN_WIDTH * 0.25,
+    top: SCREEN_HEIGHT * 0.45,
+    width: SCREEN_WIDTH * 0.15,
+    height: SCREEN_HEIGHT * 0.15,
     resizeMode: 'contain',
   },
   thoughtBubble: {
     position: 'absolute',
-    left: SCREEN_WIDTH * 0.15,
-    top: SCREEN_HEIGHT * 0.6,
-    width: SCREEN_WIDTH * 0.7,
-    height: SCREEN_HEIGHT * 0.15,
+    width: THOUGHT_WIDTH,
+    height: THOUGHT_HEIGHT,
     resizeMode: 'contain',
+    left: (SCREEN_WIDTH - THOUGHT_WIDTH) / 2,
+    top: (SCREEN_HEIGHT - THOUGHT_HEIGHT) / 3.5,
+  },
+  helpText: {
+    position: 'absolute',
+    bottom: SCREEN_HEIGHT * 0.03,
+    right: SCREEN_WIDTH * 0.1,
+    fontSize: 24,
+    fontFamily: 'Avenir',
+    color: palette.darkGray,
+    textAlign: 'right',
+    zIndex: 2,
   },
   continueButton: {
     position: 'absolute',
-    bottom: SCREEN_HEIGHT * 0.1,
-    left: SCREEN_WIDTH * 0.1,
+    top: SCREEN_HEIGHT * 0.05,
+    right: SCREEN_WIDTH * 0.1,
     backgroundColor: palette.lightBeige,
     paddingVertical: 14,
     paddingHorizontal: 24,
@@ -116,6 +162,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    zIndex: 10,
   },
   continueButtonText: {
     fontSize: 18,
