@@ -7,12 +7,14 @@ import { Portal } from './pages/portal';
 import { Home } from './pages/home';
 import { Profile } from './pages/profile';
 import { Expectations } from './pages/expectations';
+import {Expectations2} from './pages/expectations2';
 import { Reflect } from './pages/reflect';
 import { AcceptInvite } from './pages/acceptInvite';
 import Welcome from './pages/welcome';
 import Onboard1 from './pages/onboard1';
 import Onboard2 from './pages/onboard2';
 import Onboard3 from './pages/onboard3';
+import Title from './pages/title';
 import Footer from './pages/components/Footer';
 import styles from './styles/styles';
 import AuthGate from './pages/components/AuthGate';
@@ -28,6 +30,7 @@ function AppContent() {
   const [showReflect, setShowReflect] = useState(false);
   const [showAcceptInvite, setShowAcceptInvite] = useState(false);
   const [selectedContact, setSelectedContact] = useState<{ id: string; name: string } | null>(null);
+  const [showExpectations2, setShowExpectations2] = useState(false);
 
   // supabase stuff : for later
   /*
@@ -58,11 +61,17 @@ function AppContent() {
     setShowAcceptInvite(false);
     setSelectedContact(null);
     setActiveTab('friends');
+    setShowExpectations2(false);
   };
 
   const handleNavigateToExpectations = () => {
     setShowExpectations(true);
     setShowPortal(false);
+  };
+
+  const handleNavigateToExpectations2 = () => {
+    setShowExpectations2(true);
+    setShowExpectations(false);
   };
 
   const handleNavigateToReflect = () => {
@@ -77,9 +86,15 @@ function AppContent() {
 
   const handleBackToPortal = () => {
     setShowExpectations(false);
+    setShowExpectations2(false);
     setShowReflect(false);
     setShowAcceptInvite(false);
     setShowPortal(true);
+  };
+
+  const handleBackToExpectations = () => {
+    setShowExpectations2(false);
+    setShowExpectations(true);
   };
 
   const handleSendInvite = () => {
@@ -96,6 +111,7 @@ function AppContent() {
       setShowReflect(false);
       setShowAcceptInvite(false);
       setSelectedContact(null);
+      setShowExpectations2(false);
     }
     setActiveTab(tab);
   };
@@ -115,7 +131,7 @@ function AppContent() {
             onSearch={(query) => console.log(query)}
           />
         )}
-        {activeTab === 'friends' && showPortal && !showExpectations && !showReflect && !showAcceptInvite && selectedContact && (
+        {activeTab === 'friends' && showPortal && !showExpectations && !showExpectations2 && !showReflect && !showAcceptInvite && selectedContact && (
           <Portal 
             contact={selectedContact}
             onBack={handleBackToContacts}
@@ -124,8 +140,11 @@ function AppContent() {
             onNavigateToAcceptInvite={handleNavigateToAcceptInvite}
           />
         )}
-        {activeTab === 'friends' && showExpectations && (
-          <Expectations onBack={handleBackToPortal} />
+        {activeTab === 'friends' && showExpectations && !showExpectations2 && (
+          <Expectations onBack={handleBackToPortal} onContinue={handleNavigateToExpectations2} />
+        )}
+        {activeTab === 'friends' && showExpectations2 && (
+          <Expectations2 onBack={handleBackToExpectations} />
         )}
         {activeTab === 'friends' && showReflect && (
           <Reflect onBack={handleBackToPortal} />
@@ -163,7 +182,7 @@ function AppContent() {
 }
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'onboard1' | 'onboard2' | 'onboard3' | 'app'>('welcome');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'onboard1' | 'onboard2' | 'login' | 'onboard3' | 'app'>('welcome');
 
   const handleWelcomeContinue = () => {
     setCurrentScreen('onboard1');
@@ -174,6 +193,10 @@ export default function App() {
   };
 
   const handleOnboard2Continue = () => {
+    setCurrentScreen('login');
+  };
+
+  const handleLoginSuccess = () => {
     setCurrentScreen('onboard3');
   };
 
@@ -212,6 +235,18 @@ export default function App() {
         <View style={styles.container}>
           <StatusBar barStyle="dark-content" />
           <Onboard2 onContinue={handleOnboard2Continue} />
+        </View>
+      </TetherProvider>
+    );
+  }
+
+  // Show login page
+  if (currentScreen === 'login') {
+    return (
+      <TetherProvider>
+        <View style={styles.container}>
+          <StatusBar barStyle="dark-content" />
+          <Title onLoginSuccess={handleLoginSuccess} />
         </View>
       </TetherProvider>
     );

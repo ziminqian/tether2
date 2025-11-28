@@ -23,9 +23,10 @@ const TEST_PASSWORD = 'test';
 
 interface TitleProps {
   onSignup?: () => void;
+  onLoginSuccess?: () => void;
 }
 
-export default function Title({ onSignup }: TitleProps = {}) {
+export default function Title({ onSignup, onLoginSuccess }: TitleProps = {}) {
   const { signIn } = useSession();
   const [areaCode, setAreaCode] = useState('+1');
   const [phoneNumber, setPhoneNumber] = useState('');
@@ -43,6 +44,10 @@ export default function Title({ onSignup }: TitleProps = {}) {
     setTimeout(async () => {
       if (phoneNumber === TEST_PHONE && password === TEST_PASSWORD) {
         await signIn(areaCode + phoneNumber);
+        // Call onLoginSuccess callback if provided
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        }
       } else {
         Alert.alert('Error', 'Invalid phone number or password');
       }
