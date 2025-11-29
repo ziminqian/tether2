@@ -37,9 +37,6 @@ export const ExpectationsIntro = ({ onBack, onContinue, onBackToPortal }: Expect
         
         <View style={localStyles.content}>
           <Text style={localStyles.title}>Setting Expectations</Text>
-          <Text style={localStyles.description}>
-            Before you start the conversation, take a moment to clarify what you hope for, what you fear, and what feels realistic. Setting expectations helps you stay grounded and respond thoughtfully instead of reactively.
-          </Text>
         </View>
       </View>
       
@@ -82,20 +79,10 @@ const localStyles = StyleSheet.create({
     padding: 20,
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontFamily: 'Avenir',
     color: palette.mediumBrown,
     fontWeight: '600',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  description: {
-    fontSize: 18,
-    fontFamily: 'Avenir',
-    color: palette.darkBrown,
-    lineHeight: 26,
-    textAlign: 'center',
-    paddingHorizontal: 20,
   },
   continueButton: {
     position: 'absolute',

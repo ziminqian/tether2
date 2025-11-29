@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   View, 
   Text, 
@@ -7,10 +7,18 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Pressable
+  Pressable,
+  Alert,
+  ScrollView
 } from 'react-native';
 import { palette } from '../styles/palette';
 import { ChevronLeft } from 'lucide-react-native';
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabaseUrl = 'https://iyjdjalbdcstlskoildv.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5amRqYWxiZGNzdGxza29pbGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzOTA3NTEsImV4cCI6MjA3OTk2Njc1MX0.Oh5zp-WhW8DpzXRYP4exF14cq_oscot7zJsKkzwrPK4'
+const db = createClient(supabaseUrl, supabaseKey)
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -22,6 +30,69 @@ interface ExpectationsSection5Props {
 
 export const ExpectationsSection5 = ({ onBack, onContinue, onBackToPortal }: ExpectationsSection5Props) => {
   const [textValue, setTextValue] = useState('');
+  const [savedText, setSavedText] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+
+  const loadSavedText = async () => {
+    try {
+      const { data, error } = await db
+        .from('expectations2')
+        .select('text')
+        .order('created_at', { ascending: false })
+        .limit(1);
+      
+      if (error) {
+        console.error('Error loading saved text:', error);
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        setSavedText(data[0].text || '');
+      }
+    } catch (error) {
+      console.error('Error loading saved text:', error);
+    }
+  };
+
+  useEffect(() => {
+    loadSavedText();
+  }, []);
+
+  const handleEdit = () => {
+    setTextValue(savedText);
+    setIsEditing(true);
+  };
+
+  const handleCancelEdit = () => {
+    setTextValue('');
+    setIsEditing(false);
+  };
+
+  const submitResponse = async () => {
+    try {
+      const { data, error } = await db
+        .from('expectations2')
+        .insert({
+          text: textValue.trim(),
+        })
+        .select();
+      
+      if (error) {
+        Alert.alert('Error', 'Failed to save your response');
+        console.error('Error saving:', error);
+        return;
+      }
+      
+      if (data && data.length > 0) {
+        setSavedText(data[0].text || '');
+        setTextValue(''); // Clear the input after saving
+        setIsEditing(false); // Exit edit mode
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to save your response');
+      console.error('Error saving:', error);
+    }
+  }
 
   return (
     <ImageBackground 
@@ -34,33 +105,67 @@ export const ExpectationsSection5 = ({ onBack, onContinue, onBackToPortal }: Exp
           <ChevronLeft size={40} color={palette.slate} />
         </TouchableOpacity>
         
-        <View style={localStyles.content}>
-          <Text style={localStyles.sectionTitle}>Emotional Preparation</Text>
-          
-          <View style={localStyles.bulletList}>
-            <Text style={localStyles.bulletPoint}>• What emotions might come up?</Text>
-            <Text style={localStyles.bulletPoint}>• What do you want to practice staying grounded in?</Text>
-            <Text style={localStyles.bulletPoint}>• What reminder will help you stay steady?</Text>
-          </View>
+        <ScrollView 
+          style={localStyles.scrollView}
+          contentContainerStyle={localStyles.scrollContent}
+          showsVerticalScrollIndicator={true}
+        >
+          <View style={localStyles.content}>
+            <Text style={localStyles.sectionTitle}>Emotional Preparation</Text>
+            
+            <View style={localStyles.bulletList}>
+              <Text style={localStyles.bulletPoint}>• What emotions might come up?</Text>
+              <Text style={localStyles.bulletPoint}>• What do you want to practice staying grounded in?</Text>
+              <Text style={localStyles.bulletPoint}>• What reminder will help you stay steady?</Text>
+            </View>
 
-          <View style={localStyles.examplesContainer}>
-            <Text style={localStyles.examplesTitle}>Examples:</Text>
-            <Text style={localStyles.example}>"It's okay if they need time to respond."</Text>
-            <Text style={localStyles.example}>"My job is to communicate clearly, not control the outcome."</Text>
-            <Text style={localStyles.example}>"I'm having this conversation because I care."</Text>
+            <View style={localStyles.examplesContainer}>
+              <Text style={localStyles.examplesTitle}>Examples:</Text>
+              <Text style={localStyles.example}>"It's okay if they need time to respond."</Text>
+              <Text style={localStyles.example}>"My job is to communicate clearly, not control the outcome."</Text>
+              <Text style={localStyles.example}>"I'm having this conversation because I care."</Text>
+            </View>
+            
+            {savedText && !isEditing ? (
+              <>
+                <TextInput
+                  style={localStyles.savedTextBox}
+                  value={savedText}
+                  editable={false}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+                <TouchableOpacity onPress={handleEdit} style={localStyles.editButton}>
+                  <Text style={localStyles.editButtonText}>Edit</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <TextInput
+                  style={localStyles.textBox}
+                  value={textValue}
+                  onChangeText={setTextValue}
+                  placeholder="Type your thoughts here..."
+                  placeholderTextColor={palette.mutedBrown}
+                  multiline
+                  numberOfLines={4}
+                  textAlignVertical="top"
+                />
+                <View style={localStyles.buttonRow}>
+                  {isEditing && (
+                    <TouchableOpacity onPress={handleCancelEdit} style={localStyles.cancelButton}>
+                      <Text style={localStyles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+                  )}
+                  <TouchableOpacity onPress={submitResponse} style={[localStyles.savebutton, isEditing && localStyles.saveButtonEdit]}>
+                    <Text style={localStyles.savebuttontext}>Save</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
           </View>
-          
-          <TextInput
-            style={localStyles.textBox}
-            value={textValue}
-            onChangeText={setTextValue}
-            placeholder="Type your thoughts here..."
-            placeholderTextColor={palette.mutedBrown}
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-          />
-        </View>
+        </ScrollView>
       </View>
       
       <Pressable
@@ -95,12 +200,18 @@ const localStyles = StyleSheet.create({
     left: SCREEN_WIDTH * 0.05,
     zIndex: 10,
   },
-  content: {
+  scrollView: {
     flex: 1,
-    justifyContent: 'center',
+    width: '100%',
+  },
+  scrollContent: {
+    paddingBottom: 120,
+  },
+  content: {
+    justifyContent: 'flex-start',
     alignItems: 'center',
     padding: 20,
-    paddingTop: 60,
+    paddingTop: 90,
   },
   sectionTitle: {
     fontSize: 28,
@@ -153,9 +264,93 @@ const localStyles = StyleSheet.create({
     minHeight: 120,
     width: '90%',
     marginTop: 24,
+    marginBottom: 16,
     borderWidth: 1,
     borderColor: palette.lightGray,
     textAlignVertical: 'top',
+  },
+  savebutton: {
+    backgroundColor: palette.slate,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%',
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  savebuttontext: {
+    fontSize: 16,
+    fontFamily: 'Avenir',
+    color: palette.cream,
+    fontWeight: '600',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    width: '90%',
+    gap: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cancelButton: {
+    backgroundColor: 'transparent',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: palette.slate,
+    flex: 1,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontFamily: 'Avenir',
+    color: palette.slate,
+    fontWeight: '600',
+  },
+  saveButtonEdit: {
+    flex: 1,
+  },
+  editButton: {
+    backgroundColor: palette.slate,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '90%',
+    marginTop: 8,
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  editButtonText: {
+    fontSize: 16,
+    fontFamily: 'Avenir',
+    color: palette.cream,
+    fontWeight: '600',
+  },
+  savedTextBox: {
+    backgroundColor: palette.lightBeige,
+    borderRadius: 16,
+    padding: 16,
+    fontSize: 17,
+    fontFamily: 'Avenir',
+    color: palette.darkBrown,
+    minHeight: 120,
+    width: '90%',
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: palette.lightGray,
+    textAlignVertical: 'top',
+    opacity: 0.8,
   },
   continueButton: {
     position: 'absolute',
