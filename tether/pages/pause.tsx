@@ -1,15 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
   ImageBackground, 
   TouchableOpacity,
-  StyleSheet,
   Dimensions,
-  Animated
+  Animated,
+  Easing
 } from 'react-native';
 import { palette } from '../styles/palette';
+import { Lightbulb, MessageCircleHeart, Brain, ShieldBan } from 'lucide-react-native';
 import { Play } from 'lucide-react-native';
+import convoStyles from '../styles/convoStyles';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -18,33 +20,71 @@ interface PauseProps {
 }
 
 export const Pause = ({ onResume }: PauseProps) => {
-  const [timeRemaining, setTimeRemaining] = useState(296); // 4:56
-  const breatheScale = new Animated.Value(1);
+  const [timeRemaining, setTimeRemaining] = useState(300);
+  const breatheScale = useRef(new Animated.Value(1)).current;
+  const breatheOpacity = useRef(new Animated.Value(0.6)).current;
+  const borderOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const timer = setInterval(() => {
       setTimeRemaining(prev => prev > 0 ? prev - 1 : 0);
     }, 1000);
 
-    // Breathing animation
+    const borderAnimation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(borderOpacity, {
+          toValue: 0.8,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(borderOpacity, {
+          toValue: 0,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    borderAnimation.start();
+
     const breatheAnimation = Animated.loop(
       Animated.sequence([
-        Animated.timing(breatheScale, {
-          toValue: 1.3,
-          duration: 4000,
-          useNativeDriver: true,
-        }),
-        Animated.timing(breatheScale, {
-          toValue: 1,
-          duration: 4000,
-          useNativeDriver: true,
-        }),
+        Animated.parallel([
+          Animated.timing(breatheScale, {
+            toValue: 1.2,
+            duration: 3500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(breatheOpacity, {
+            toValue: 1,
+            duration: 3500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.delay(500),
+        Animated.parallel([
+          Animated.timing(breatheScale, {
+            toValue: 1,
+            duration: 3500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+          Animated.timing(breatheOpacity, {
+            toValue: 0.6,
+            duration: 3500,
+            easing: Easing.inOut(Easing.ease),
+            useNativeDriver: true,
+          }),
+        ]),
+        Animated.delay(500),
       ])
     );
     breatheAnimation.start();
 
     return () => {
       clearInterval(timer);
+      borderAnimation.stop();
       breatheAnimation.stop();
     };
   }, []);
@@ -58,228 +98,108 @@ export const Pause = ({ onResume }: PauseProps) => {
   return (
     <ImageBackground 
       source={require("../assets/backgrounds/background_vibrant.png")}
-      style={localStyles.background}
+      style={convoStyles.background}
       resizeMode='cover'
     >
-      <View style={localStyles.container}>
-        <Text style={localStyles.statusText}>Conversation Paused</Text>
+      <View style={convoStyles.container_pause}>
+        <Text style={convoStyles.statusText_pause}>Conversation Paused</Text>
 
         <Animated.View 
           style={[
-            localStyles.breatheCircle,
-            { transform: [{ scale: breatheScale }] }
+            convoStyles.breatheCircle,
+            { 
+              transform: [{ scale: breatheScale }],
+              opacity: breatheOpacity
+            }
           ]}
         >
-          <Text style={localStyles.breatheText}>Breathe</Text>
+          <Text style={convoStyles.breatheText}>Breathe</Text>
+          
+          {/* Pulsing border */}
+          <Animated.View 
+            style={{
+              position: 'absolute',
+              top: -4,
+              left: -4,
+              right: -4,
+              bottom: -4,
+              borderRadius: 1000,
+              borderWidth: 3,
+              borderColor: palette.slate,
+              opacity: borderOpacity,
+            }}
+          />
         </Animated.View>
 
-        <View style={localStyles.timerSection}>
-          <Text style={localStyles.timerLabel}>Time Remaining</Text>
-          <Text style={localStyles.timerText}>{formatTime(timeRemaining)}</Text>
-          <Text style={localStyles.breatheInstruction}>
-            Inhale deeply... Hold... Exhale slowly...
-          </Text>
+        <View style={convoStyles.timerSection}>
+          <Text style={convoStyles.timerLabel}>Time Remaining</Text>
+          <Text style={convoStyles.timerText_pause}>{formatTime(timeRemaining)}</Text>
+          <Text style={convoStyles.breatheInstruction}>Inhale deeply... Hold... Exhale slowly...</Text>
         </View>
 
-        <View style={localStyles.resourcesSection}>
-          <Text style={localStyles.resourcesTitle}>Conversation Resources</Text>
+        <View style={convoStyles.resourcesSection}>
+          {/*<Text style={convoStyles.resourcesTitle}>Conversation Resources</Text>*/}
           
-          <View style={localStyles.resourcesGrid}>
-            <TouchableOpacity style={localStyles.resourceCard}>
-              <View style={[localStyles.resourceIcon, { backgroundColor: '#FFB84D' }]}>
-                <Text style={localStyles.resourceIconText}>💡</Text>
-              </View>
-              <Text style={localStyles.resourceTitle}>Conversation{'\n'}Starters</Text>
-              <Text style={localStyles.resourceSubtitle}>Suggested phrases{'\n'}to move forward</Text>
+          <View style={convoStyles.resourcesGrid}>
+            
+            <TouchableOpacity style={convoStyles.resourceCard}>
+              <View style={[convoStyles.resourceIcon, { backgroundColor: palette.teal }]}>
+              <Lightbulb size={35} color={palette.cream}/>
+            </View>
+              <Text style={convoStyles.resourceTitle}>Conversation Starters</Text>
+              <Text style={convoStyles.resourceSubtitle}>Prompts to move forward</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={localStyles.resourceCard}>
-              <View style={[localStyles.resourceIcon, { backgroundColor: '#4ECDC4' }]}>
-                <Text style={localStyles.resourceIconText}>👂</Text>
-              </View>
-              <Text style={localStyles.resourceTitle}>Active Listening Tips</Text>
-              <Text style={localStyles.resourceSubtitle}>Ways to show you're{'\n'}engaged</Text>
+            <TouchableOpacity style={convoStyles.resourceCard}>
+                <View style={[convoStyles.resourceIcon, { backgroundColor: palette.lightBrown }]}>
+                <MessageCircleHeart size={33} color={palette.cream}/>
+                </View>
+              <Text style={convoStyles.resourceTitle}>Revisit Expectations</Text>
+              <Text style={convoStyles.resourceSubtitle}>Reminders on your goals</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={localStyles.resourceCard}>
-              <View style={[localStyles.resourceIcon, { backgroundColor: '#FF6B9D' }]}>
-                <Text style={localStyles.resourceIconText}>❤️</Text>
-              </View>
-              <Text style={localStyles.resourceTitle}>Empathy Prompts</Text>
-              <Text style={localStyles.resourceSubtitle}>Connect with their{'\n'}perspective</Text>
+            <TouchableOpacity style={convoStyles.resourceCard}>
+              <View style={[convoStyles.resourceIcon, { backgroundColor: palette.mutedBrown }]}>
+              <Brain size={35} color={palette.cream}/>
+            </View>
+              <Text style={convoStyles.resourceTitle}>Empathy Prompts</Text>
+              <Text style={convoStyles.resourceSubtitle}>Understand their perspective</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={localStyles.resourceCard}>
-              <View style={[localStyles.resourceIcon, { backgroundColor: '#9B59B6' }]}>
-                <Text style={localStyles.resourceIconText}>🛡️</Text>
-              </View>
-              <Text style={localStyles.resourceTitle}>Boundary Setting</Text>
-              <Text style={localStyles.resourceSubtitle}>Respectful ways to{'\n'}set limits</Text>
+            <TouchableOpacity style={convoStyles.resourceCard}>
+              <View style={[convoStyles.resourceIcon, { backgroundColor: palette.sage }]}>
+              <ShieldBan size={35} color={palette.cream}/>
+            </View>
+              <Text style={convoStyles.resourceTitle}>Boundary Setting</Text>
+              <Text style={convoStyles.resourceSubtitle}>Respectful ways to set limits</Text>
+            </TouchableOpacity>
+            {/*
+            <TouchableOpacity style={convoStyles.resourceCard}>
+              <View style={[convoStyles.resourceIcon, { backgroundColor: palette.mutedBrown }]}>
+              <ShieldBan size={35} color={palette.cream}/>
+            </View>
+              <Text style={convoStyles.resourceTitle}>De-escalation Tactics</Text>
+              <Text style={convoStyles.resourceSubtitle}>Calm heated{'\n'}moments</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={localStyles.resourceCard}>
-              <View style={[localStyles.resourceIcon, { backgroundColor: '#3498DB' }]}>
-                <Text style={localStyles.resourceIconText}>📉</Text>
-              </View>
-              <Text style={localStyles.resourceTitle}>De-escalation Tactics</Text>
-              <Text style={localStyles.resourceSubtitle}>Calm heated{'\n'}moments</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={localStyles.resourceCard}>
-              <View style={[localStyles.resourceIcon, { backgroundColor: '#E74C3C' }]}>
-                <Text style={localStyles.resourceIconText}>🔄</Text>
-              </View>
-              <Text style={localStyles.resourceTitle}>Reflection Questions</Text>
-              <Text style={localStyles.resourceSubtitle}>Deepen mutual{'\n'}understanding</Text>
-            </TouchableOpacity>
+            <TouchableOpacity style={convoStyles.resourceCard}>
+              <View style={[convoStyles.resourceIcon, { backgroundColor: palette.mutedBrown }]}>
+              <Brain size={35} color={palette.cream}/>
+            </View>
+              <Text style={convoStyles.resourceTitle}>Reflection Questions</Text>
+              <Text style={convoStyles.resourceSubtitle}>Deepen mutual{'\n'}understanding</Text>
+            </TouchableOpacity>*/}
           </View>
         </View>
 
         <TouchableOpacity 
-          style={localStyles.resumeButton}
+          style={convoStyles.resumeButton}
           onPress={onResume}
         >
           <Play size={24} color={palette.cream} fill={palette.cream} />
-          <Text style={localStyles.resumeButtonText}>RESUME CONVERSATION</Text>
+          <Text style={convoStyles.resumeButtonText}>RESUME CONVERSATION</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
   );
 };
-
-const localStyles = StyleSheet.create({
-  background: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  container: {
-    flex: 1,
-    paddingTop: SCREEN_HEIGHT * 0.05,
-    paddingHorizontal: 20,
-    paddingBottom: 20,
-    alignItems: 'center',
-  },
-  statusText: {
-    fontSize: 18,
-    fontFamily: 'Avenir',
-    color: palette.cream,
-    marginBottom: 30,
-  },
-  breatheCircle: {
-    width: 140,
-    height: 140,
-    borderRadius: 70,
-    backgroundColor: '#9B8CFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 30,
-    shadowColor: '#9B8CFF',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 20,
-    elevation: 10,
-  },
-  breatheText: {
-    fontSize: 28,
-    fontFamily: 'Avenir',
-    color: palette.cream,
-    fontWeight: '600',
-  },
-  timerSection: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  timerLabel: {
-    fontSize: 16,
-    fontFamily: 'Avenir',
-    color: palette.cream,
-    marginBottom: 8,
-  },
-  timerText: {
-    fontSize: 48,
-    fontFamily: 'Avenir',
-    color: palette.cream,
-    fontWeight: '700',
-    marginBottom: 12,
-  },
-  breatheInstruction: {
-    fontSize: 15,
-    fontFamily: 'Avenir',
-    color: palette.cream + 'CC',
-    fontStyle: 'italic',
-  },
-  resourcesSection: {
-    flex: 1,
-    width: '100%',
-    marginBottom: 20,
-  },
-  resourcesTitle: {
-    fontSize: 20,
-    fontFamily: 'Avenir',
-    color: palette.cream,
-    fontWeight: '600',
-    marginBottom: 16,
-  },
-  resourcesGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-    justifyContent: 'space-between',
-  },
-  resourceCard: {
-    backgroundColor: palette.slate + 'CC',
-    borderRadius: 16,
-    padding: 12,
-    width: SCREEN_WIDTH * 0.43,
-    alignItems: 'center',
-  },
-  resourceIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  resourceIconText: {
-    fontSize: 20,
-  },
-  resourceTitle: {
-    fontSize: 13,
-    fontFamily: 'Avenir',
-    color: palette.cream,
-    textAlign: 'center',
-    fontWeight: '600',
-    marginBottom: 4,
-  },
-  resourceSubtitle: {
-    fontSize: 11,
-    fontFamily: 'Avenir',
-    color: palette.cream + 'AA',
-    textAlign: 'center',
-    lineHeight: 14,
-  },
-  resumeButton: {
-    backgroundColor: palette.teal,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 30,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 12,
-    width: SCREEN_WIDTH * 0.85,
-    shadowColor: palette.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
-  },
-  resumeButtonText: {
-    fontSize: 16,
-    fontFamily: 'Avenir',
-    color: palette.cream,
-    fontWeight: '700',
-  },
-});

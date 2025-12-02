@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { palette } from '../styles/palette';
 import { ChevronLeft, Pause, Lightbulb, MessageCircleHeart } from 'lucide-react-native';
-import styles from "../styles/styles"
+import convoStyles from "../styles/convoStyles"
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -41,64 +41,65 @@ export const Conversation = ({ contact, onBack, onPause }: ConversationProps) =>
   return (
     <ImageBackground 
       source={require("../assets/backgrounds/background_vibrant.png")}
-      style={styles.background}
+      style={convoStyles.background}
       resizeMode='cover'
     >
-      <TouchableOpacity onPress={onBack} style={styles.backButton}>
+      <TouchableOpacity onPress={onBack} style={convoStyles.backButton}>
         <ChevronLeft size={40} color={palette.slate} />
       </TouchableOpacity>
-      <View style={styles.container}>
-        <Text style={styles.statusText}>In conversation</Text>
-        <Text style={styles.timerText}>{formatTime(elapsedTime)}</Text>
+      <View style={convoStyles.container}>
+        <Text style={convoStyles.statusText}>In conversation</Text>
+        <Text style={convoStyles.timerText}>{formatTime(elapsedTime)}</Text>
 
-        <View style={styles.avatarsContainer}>
-          <View style={styles.avatarSection}>
-            <View style={styles.avatar}>
+        <View style={convoStyles.avatarsContainer}>
+          <View style={convoStyles.avatarSection}>
+            <View style={convoStyles.avatar}>
                <Image source = {require('../assets/frogs/frog.png')}/>
             </View>
-            <Text style={styles.nameText}>{contact.name}</Text>
-            <View style={styles.statusIndicator}>
-              <View style={styles.statusDot} />
-              <Text style={styles.statusLabel}>Speaking</Text>
+            <Text style={convoStyles.nameText}>{contact.name}</Text>
+            <View style={convoStyles.statusIndicator}>
+              <View style={convoStyles.statusDot} />
+              <Text style={convoStyles.statusLabel}>Speaking</Text>
             </View>
           </View>
 
-          <View style={styles.dividerLine} />
+          <View style={convoStyles.dividerLine} />
 
-          <View style={styles.avatarSection}>
-            <View style={[styles.avatar, {width: 100, height: 100}]}>
+          <View style={convoStyles.avatarSection}>
+            <View style={[convoStyles.avatar, {width: 100, height: 100}]}>
                <Image source = {require('../assets/frogs/frog.png')}/>
             </View>
-            <Text style={styles.nameText}>You</Text>
+            <Text style={convoStyles.nameText}>You</Text>
           </View>
         </View>
 
-        <View style={styles.resourcesContainer}>
-          <TouchableOpacity style={styles.resourceCard}>
-            <View style={[styles.resourceIcon, { backgroundColor: palette.teal }]}>
+        <View style={convoStyles.resourcesContainer}>
+          <TouchableOpacity style={convoStyles.resourceCard}>
+            <View style={[convoStyles.resourceIcon, { backgroundColor: palette.teal }]}>
               <Lightbulb size={35} color={palette.cream}/>
             </View>
-            <Text style={styles.resourceTitle}>Conversation{'\n'}Starters</Text>
+            <Text style={convoStyles.resourceTitle}>Conversation{'\n'}Starters</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.resourceCard}>
-            <View style={[styles.resourceIcon, { backgroundColor: palette.lightBrown }]}>
+          <TouchableOpacity style={convoStyles.resourceCard}>
+            <View style={[convoStyles.resourceIcon, { backgroundColor: palette.lightBrown }]}>
               <MessageCircleHeart size={33} color={palette.cream}/>
             </View>
-            <Text style={styles.resourceTitle}>Empathy Prompts</Text>
+            <Text style={convoStyles.resourceTitle}>Revisit{'\n'}Expectations</Text>
           </TouchableOpacity>
         </View>
 
-        <Text style={styles.pauseHintText}>Pause for more resources</Text>
+        <Text style={convoStyles.pauseHintText}>Pause for more resources</Text>
 
         <TouchableOpacity 
-          style={styles.pauseButton}
+          style={convoStyles.pauseButton}
           onPress={onPause}
         >
           <Pause size={24} color={palette.cream} fill={palette.cream} />
-          <Text style={styles.pauseButtonText}>PAUSE & BREATHE</Text>
+          <Text style={convoStyles.pauseButtonText}>PAUSE & BREATHE</Text>
         </TouchableOpacity>
       </View>
     </ImageBackground>
   );
 };
+
