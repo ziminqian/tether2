@@ -25,14 +25,13 @@ import Footer from './pages/components/Footer';
 import {Pause} from './pages/pause';
 import {Conversation} from './pages/conversation';
 import { Calling } from './pages/calling';
+import { ConfirmCallModal } from './pages/components/ConfirmCall';
 import styles from './styles/styles';
 import AuthGate from './pages/components/AuthGate';
-//import { supabase } from './config/supabase';
 
 function AppContent() {
   const [activeTab, setActiveTab] = useState< 'friends' | 'home' | 'profile'>('home');
 
-  //　
   const [showMessage, setShowMessage] = useState(false);
   const [showPortal, setShowPortal] = useState(false);
   const [showExpectationsIntro, setShowExpectationsIntro] = useState(false);
@@ -49,23 +48,15 @@ function AppContent() {
   const [showPause, setShowPause] = useState(false);
   const [isNewPortalRequest, setIsNewPortalRequest] = useState(false);
   const [showCalling, setShowCalling] = useState(false);
-  // supabase stuff : for later
-  /*
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      console.log("CURRENT SESSION:", data.session);
-    });
-  }, []);*/
+  const [showConfirmCallModal, setShowConfirmCallModal] = useState(false);
 
   const handleContactSelect = (contact: { id: string; name: string }, isInvite?: boolean) => {
     setSelectedContact(contact);
     setIsNewPortalRequest(false);
     if (isInvite) {
-      // Navigate to initiate conversation (Message page) for invites
       setShowMessage(true);
       setShowPortal(false);
     } else {
-      // Navigate to portal page for friends
       setShowPortal(true);
       setShowMessage(false);
     }
@@ -83,8 +74,11 @@ function AppContent() {
     setShowExpectationsComplete(false);
     setShowReflect(false);
     setShowAcceptInvite(false);
+    setShowCalling(false); 
+    setShowConversation(false);
+    setShowPause(false);
+    setShowConfirmCallModal(false);
     setSelectedContact(null);
-    setIsNewPortalRequest(false);
     setActiveTab('friends');
   };
 
@@ -143,6 +137,10 @@ function AppContent() {
     setShowExpectationsComplete(false);
     setShowReflect(false);
     setShowAcceptInvite(false);
+    setShowCalling(false);
+    setShowConversation(false);
+    setShowPause(false);
+    setShowConfirmCallModal(false);
     setShowPortal(true);
   };
 
@@ -181,14 +179,26 @@ function AppContent() {
     setSelectedContact(null);
   };
 
-    const handleCallConnected = () => {
-    setShowCalling(false);
-    setShowConversation(true);
+  // Show confirm call modal when call button is pressed
+  const handleStartCall = () => {
+    setShowConfirmCallModal(true);
   };
 
-  const handleStartCall = () => {
+  // Cancel button in confirm modal - just close modal, stay on portal
+  const handleCancelCall = () => {
+    setShowConfirmCallModal(false);
+  };
+
+  // Confirm button in modal - start the calling screen
+  const handleConfirmCall = () => {
+    setShowConfirmCallModal(false);
     setShowCalling(true);
     setShowPortal(false);
+  };
+
+  const handleCallConnected = () => {
+    setShowCalling(false);
+    setShowConversation(true);
   };
 
   const handlePauseConversation = () => {
@@ -204,6 +214,7 @@ function AppContent() {
   const handleEndCall = () => {
     setShowConversation(false);
     setShowCalling(false);
+    setShowPause(false);
     setShowPortal(true);
   };
 
@@ -223,14 +234,12 @@ function AppContent() {
       setShowConversation(false);
       setShowPause(false);
       setShowCalling(false);
+      setShowConfirmCallModal(false);
       setSelectedContact(null);
     }
     setActiveTab(tab);
   };
 
-
-  console.log(activeTab);
-  
   const showOverlay = showExpectationsIntro || showExpectationsSection1 || showExpectationsSection2 || 
     showExpectationsSection3 || showExpectationsSection4 || showExpectationsSection5 || 
     showExpectationsComplete || showReflect || showAcceptInvite;
@@ -239,26 +248,62 @@ function AppContent() {
     <View style={styles.container}>
       <StatusBar barStyle="dark-content" />
       <View style={{ flex: showOverlay ? 1 : 9 }}>
-        {activeTab === 'friends' && !showMessage && !showPortal && !showOverlay && !showConversation && !showPause && (
+        {/* Contacts Page */}
+        {activeTab === 'friends' && !showMessage && !showPortal && !showCalling && !showConversation && !showPause && !showOverlay && (
           <Contacts 
             onNext={handleContactSelect} 
             onBack={() => {}}
             onSearch={(query) => console.log(query)}
           />
         )}
-        {activeTab === 'friends' && !showOverlay && showPortal && !showConversation && !showPause && !showExpectationsIntro && !showExpectationsSection1 && 
-          !showExpectationsSection2 && !showExpectationsSection3 && !showExpectationsSection4 && 
-          !showExpectationsSection5 && !showExpectationsComplete && !showReflect && !showAcceptInvite && selectedContact && (
-          <Portal 
+
+        {/* Portal Page with Confirm Call Modal */}
+        {activeTab === 'friends' && showPortal && !showCalling && !showConversation && !showPause && !showOverlay && selectedContact && (
+          <>
+            <Portal 
+              contact={selectedContact}
+              isNewPortalRequest={isNewPortalRequest}
+              onBack={handleBackToContacts}
+              onNavigateToExpectations={handleNavigateToExpectations}
+              onNavigateToReflect={handleNavigateToReflect}
+              onNavigateToAcceptInvite={handleNavigateToAcceptInvite}
+              onStartCall={handleStartCall}
+            />
+            <ConfirmCallModal
+              visible={showConfirmCallModal}
+              contactName={selectedContact.name}
+              onConfirm={handleConfirmCall}
+              onCancel={handleCancelCall}
+            />
+          </>
+        )}
+
+        {/* Calling Page */}
+        {activeTab === 'friends' && showCalling && !showConversation && selectedContact && (
+          <Calling 
             contact={selectedContact}
-            isNewPortalRequest={isNewPortalRequest}
-            onBack={handleBackToContacts}
-            onNavigateToExpectations={handleNavigateToExpectations}
-            onNavigateToReflect={handleNavigateToReflect}
-            onNavigateToAcceptInvite={handleNavigateToAcceptInvite}
-            onStartCall={handleStartCall}
+            onBack={handleEndCall}
+            onCallConnected={handleCallConnected}
           />
         )}
+
+        {/* Conversation Page */}
+        {activeTab === 'friends' && showConversation && !showPause && selectedContact && (
+          <Conversation 
+            contact={selectedContact}
+            onBack={handleEndCall}
+            onPause={handlePauseConversation}
+          />
+        )}
+
+        {/* Pause Page */}
+        {activeTab === 'friends' && showPause && selectedContact && (
+          <Pause 
+            onResume={handleResumeConversation}
+          />
+        )}
+
+        {/* Expectations Flow */}
         {activeTab === 'friends' && showExpectationsIntro && (
           <ExpectationsIntro 
             onBack={handleBackToPortal} 
@@ -307,12 +352,16 @@ function AppContent() {
             onBackToPortal={handleBackToPortal}
           />
         )}
+
+        {/* Reflect & Accept Invite */}
         {activeTab === 'friends' && showReflect && (
           <Reflect onBack={handleBackToPortal} />
         )}
         {activeTab === 'friends' && showAcceptInvite && (
           <AcceptInvite onBack={handleBackToPortal} />
         )}
+
+        {/* Message Page */}
         {activeTab === 'friends' && showMessage && selectedContact && (
           <Message 
             contact={selectedContact}
@@ -320,6 +369,8 @@ function AppContent() {
             onBack={handleBackToContacts}
           />
         )}
+
+        {/* Home Page */}
         {activeTab === 'home' && !showOverlay && (
           <Home 
             onBack={() => {}}
@@ -332,42 +383,27 @@ function AppContent() {
             onSearch={(query) => console.log(query)}
           />
         )}
+
+        {/* Profile Page */}
         {activeTab === 'profile' && !showOverlay && (
           <Profile 
             onBack={() => setActiveTab('profile')} 
           />
         )}
-        {activeTab === 'friends' && showConversation && !showCalling && selectedContact && (
-          <Conversation 
-            contact={selectedContact}
-            onBack={handleEndCall}
-            onPause={handlePauseConversation}
-          />
-        )}
-        {activeTab === 'friends' && showCalling && selectedContact && (
-          <Calling 
-            contact={selectedContact}
-            onBack={handleBackToContacts}
-            onCallConnected={handleCallConnected}
-          />
-        )}
-        {activeTab === 'friends' && showPause && selectedContact && (
-          <Pause 
-            onResume={handleResumeConversation}
-          />
-        )}
+      </View>
+
+      {/* Footer */}
+      {!showOverlay && (
+        <View style={{flex: 1}}>
+          <Footer activeTab={activeTab} setActiveTab={handleTabChange}/>
         </View>
-        {!showOverlay && (
-          <View style={{flex: 1}}>
-            <Footer activeTab={activeTab} setActiveTab={handleTabChange}/>
-          </View>
-        )}
+      )}
     </View>
   );
 }
 
 export default function App() {
-  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'onboard1' | 'onboard2' | 'login' | 'signup' | /*'onboard3' | */'app'>('welcome');
+  const [currentScreen, setCurrentScreen] = useState<'welcome' | 'onboard1' | 'onboard2' | 'login' | 'signup' | 'app'>('welcome');
   const [showSignup, setShowSignup] = useState(false);
 
   const handleWelcomeContinue = () => {
@@ -391,21 +427,13 @@ export default function App() {
   };
 
   const handleSignupSuccess = () => {
-    //setCurrentScreen('onboard3');
     setCurrentScreen('app');
   };
 
   const handleLoginSuccess = () => {
-    //setCurrentScreen('onboard3');
     setCurrentScreen('app');
   };
 
-  /*
-  const handleOnboard3Continue = () => {
-    setCurrentScreen('app');
-  };*/
-
-  // Show welcome page first
   if (currentScreen === 'welcome') {
     return (
       <TetherProvider>
@@ -417,7 +445,6 @@ export default function App() {
     );
   }
 
-  // Show onboard1
   if (currentScreen === 'onboard1') {
     return (
       <TetherProvider>
@@ -429,7 +456,6 @@ export default function App() {
     );
   }
 
-  // Show onboard2
   if (currentScreen === 'onboard2') {
     return (
       <TetherProvider>
@@ -441,7 +467,6 @@ export default function App() {
     );
   }
 
-  // Show login page
   if (currentScreen === 'login') {
     return (
       <TetherProvider>
@@ -456,22 +481,7 @@ export default function App() {
       </TetherProvider>
     );
   }
-  
 
-  // Show onboard3
-  /*
-  if (currentScreen === 'onboard3') {
-    return (
-      <TetherProvider>
-        <View style={styles.container}>
-          <StatusBar barStyle="dark-content" />
-          <Onboard3 onContinue={handleOnboard3Continue} />
-        </View>
-      </TetherProvider>
-    );
-  }*/
-
-  // After onboarding, show login/auth flow
   return (
     <TetherProvider>
       <AuthGate>
