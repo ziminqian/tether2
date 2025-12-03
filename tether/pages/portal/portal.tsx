@@ -90,8 +90,8 @@ export const Portal = ({ contact, isNewPortalRequest = false, expectationsComple
     >
       <SafeAreaView style={{ flex: 1, overflow: 'visible' }}>
         <View style={styles.screen}>
-          <View style={[styles.heading, {marginBottom: 0}]}>
-            <TouchableOpacity onPress={onBack} style={styles.backButton}>
+          <View style={[styles.heading, {marginBottom: 0, zIndex: 100}]}>
+            <TouchableOpacity onPress={onBack} style={[styles.backButton, { zIndex: 100 }]}>
               <Image source={Back} style={{ width: 40, height: 40 }} resizeMode="contain" />
             </TouchableOpacity>
             {/* <Text style={styles.headingtext}>Portal with {contact.name}</Text> */}

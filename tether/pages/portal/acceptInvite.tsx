@@ -35,11 +35,11 @@ export const AcceptInvite = ({ contact, onBack, onNavigateToExpectations }: Acce
             {contact.name} accepted invite! Continue to setting expectations
           </Text>
           <TouchableOpacity
-            style={[portalStyles.continueButton, { marginTop: 8, alignSelf: 'center' }]}
+            style={[portalStyles.continueButton, { marginTop: 8, alignSelf: 'center', position: 'relative', bottom: 'auto', right: 'auto', width: 'auto', minWidth: 200 }]}
             onPress={onNavigateToExpectations}
           >
             <Text style={[portalStyles.continueButtonText, { fontFamily: 'Avenir' }]}>
-              Continue to Expectations
+              Continue
             </Text>
           </TouchableOpacity>
         </View>
