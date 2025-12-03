@@ -46,10 +46,11 @@ interface PortalProps {
   onNavigateToExpectations: () => void;
   onNavigateToReflect: () => void;
   onNavigateToAcceptInvite: () => void;
+  onNavigateToLockedStep: () => void;
   onStartCall?: () => void;
 }
 
-export const Portal = ({ contact, isNewPortalRequest = false, expectationsCompleted = false, onBack, onNavigateToExpectations, onNavigateToReflect, onNavigateToAcceptInvite, onStartCall }: PortalProps) => {
+export const Portal = ({ contact, isNewPortalRequest = false, expectationsCompleted = false, onBack, onNavigateToExpectations, onNavigateToReflect, onNavigateToAcceptInvite, onNavigateToLockedStep, onStartCall }: PortalProps) => {
   const [hasCompletedExpectations, setHasCompletedExpectations] = useState(expectationsCompleted);
 
   useEffect(() => {
@@ -142,7 +143,13 @@ export const Portal = ({ contact, isNewPortalRequest = false, expectationsComple
         />
       </View> */}
       <TouchableOpacity 
-        onPress={onNavigateToExpectations}
+        onPress={() => {
+          if (isNewPortalRequest) {
+            onNavigateToLockedStep();
+          } else {
+            onNavigateToExpectations();
+          }
+        }}
         style={portalStyles.expectationsTouchable}
       >
         <Image 
@@ -156,7 +163,13 @@ export const Portal = ({ contact, isNewPortalRequest = false, expectationsComple
       />
       <View style={portalStyles.reflectContainer}> 
         <TouchableOpacity 
-          onPress={onNavigateToReflect}
+          onPress={() => {
+            if (!hasCompletedExpectations) {
+              onNavigateToLockedStep();
+            } else {
+              onNavigateToReflect();
+            }
+          }}
           style={portalStyles.reflectTouchable}
         > 
           <Image 

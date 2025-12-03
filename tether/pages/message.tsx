@@ -117,7 +117,7 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
                 >
                   {message.isAI && (
                     <View style={{flexDirection: "column"}}>
-                      <View style={{flexDirection: "row", gap: 5}}><Image source={require("../assets/frogs/cute_frog_ai.png")} style={{height: 30, width: 30}}/>
+                      <View style={{flexDirection: "row", gap: 5}}><Image source={require("../assets/other/ai.png")} style={{height: 30, width: 30}}/>
                       <Text style={[styles.headingtext, {fontSize: 24}]}>Tether AI</Text></View>
                     <View style={styles.divider} />
                     </View>
