@@ -39,6 +39,7 @@ const assurances = require('../../assets/portal/assurances.png');
 const three = require('../../assets/portal/3.png');
 const four = require('../../assets/portal/four.png');
 const reflectwhite = require('../../assets/portal/reflectwhite.png');
+const down = require('../../assets/portal/down.png');
 
 const maptwo = require('../../assets/portal/maptwo.png');
 
@@ -173,9 +174,15 @@ export const Portal = ({
             />
           </ScrollView>
 
-          {/* Reflect white image - above four.png */}
+          {/* Reflect white image - always shown above */}
           <TouchableOpacity
-            onPress={() => setShowReflect(true)}
+            onPress={() => {
+              if (isNewPortalRequest || !hasCompletedExpectations) {
+                onNavigateToLockedStep();
+              } else {
+                setShowReflect(true);
+              }
+            }}
             style={{
               position: 'absolute',
               top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.1 - 120 - SCREEN_WIDTH * 0.15,
@@ -193,24 +200,69 @@ export const Portal = ({
             />
           </TouchableOpacity>
 
-          {/* Four image - centered in the middle of the screen */}
+          {/* Four image or Lock - conditionally shown based on lock status */}
+          {(isNewPortalRequest || !hasCompletedExpectations) ? (
+            /* Lock image - centered in the middle of the screen */
+            <TouchableOpacity
+              onPress={onNavigateToLockedStep}
+              style={{
+                position: 'absolute',
+                top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.1 - 100,
+                left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.1,
+                zIndex: 100,
+              }}
+            >
+              <Image
+                source={lock}
+                style={{
+                  width: SCREEN_WIDTH * 0.2,
+                  height: SCREEN_WIDTH * 0.2,
+                  resizeMode: 'contain',
+                }}
+              />
+            </TouchableOpacity>
+          ) : (
+            /* Four image - centered in the middle of the screen */
+            <TouchableOpacity
+              onPress={() => setShowReflect(true)}
+              style={{
+                position: 'absolute',
+                top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.1 - 100,
+                left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.1,
+                zIndex: 100,
+              }}
+            >
+              <Image
+                source={four}
+                style={{
+                  width: SCREEN_WIDTH * 0.2,
+                  height: SCREEN_WIDTH * 0.2,
+                  resizeMode: 'contain',
+                }}
+              />
+            </TouchableOpacity>
+          )}
+
+          {/* Complete button - at bottom of map view */}
           <TouchableOpacity
-            onPress={() => setShowReflect(true)}
             style={{
               position: 'absolute',
-              top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.1 - 100,
-              left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.1,
-              zIndex: 100,
+              bottom: 30,
+              alignSelf: 'center',
+              backgroundColor: palette.slate,
+              paddingVertical: 14,
+              paddingHorizontal: 32,
+              borderRadius: 30,
+              zIndex: 10,
+              shadowColor: palette.shadow,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.2,
+              shadowRadius: 8,
+              elevation: 4,
             }}
+            onPress={() => setShowMap(false)}
           >
-            <Image
-              source={four}
-              style={{
-                width: SCREEN_WIDTH * 0.2,
-                height: SCREEN_WIDTH * 0.2,
-                resizeMode: 'contain',
-              }}
-            />
+            <Text style={{ ...portalStyles.continueButtonText, color: palette.cream }}>Complete</Text>
           </TouchableOpacity>
         </SafeAreaView>
       </ImageBackground>
@@ -391,6 +443,20 @@ export const Portal = ({
           <Phone size={32} color={palette.cream} />
         </View>
       </TouchableOpacity>
+
+      {/* Down arrow - between call icon and see full map button */}
+      <Image
+        source={down}
+        style={{
+          position: 'absolute',
+          bottom: 60,
+          alignSelf: 'center',
+          width: 30,
+          height: 30,
+          resizeMode: 'contain',
+          zIndex: 100,
+        }}
+      />
 
       <View style={portalStyles.elementcontainer}>
         <Image 
