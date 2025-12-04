@@ -52,7 +52,7 @@ export const Reflect = ({ contact, onBack, onContinue, onBackToPortal }: Reflect
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
-      text: `Hi! I'm Tether AI, and I'm here to help you reflect on the relationship before this conversation.\n\nTaking a moment to reflect can help you:\n\n• Ground yourself in what this relationship means to you\n\n• Remember the moments that shaped your connection\n\n• Clarify what you genuinely appreciate about each other\n\n• Approach the conversation with empathy and emotional clarity`,
+      text: `Hi! I'm Tether AI, and I'm here to help you reflect on the relationship after the conversation!\n\nTaking a moment to reflect can help you:\n\n• Ground yourself in what this relationship means to you\n\n• Remember the moments that shaped your connection\n\n• Clarify what you genuinely appreciate about each other\n\n• Approach the conversation with empathy and emotional clarity`,
       isAI: true
     }
   ]);
