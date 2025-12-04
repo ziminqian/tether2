@@ -54,7 +54,7 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
       setTimeout(() => {
         const aiResponse: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          text: `Sure, here's one version:\n\nInvite Message Window\n\n"Hey ${contact.name}, I've been thinking about what happened yesterday. I don't want that fight to sit between us or mess with our friendship. Can we talk it through when you're free?"`,
+          text: `Sure, here's one version:\n"Hey ${contact.name}, I've been thinking about what happened yesterday. I don't want that fight to sit between us or mess with our friendship. Can we talk it through when you're free?"`,
           isAI: true
         };
         setMessages(prev => [...prev, aiResponse]);

@@ -231,7 +231,8 @@ const globalStyles = StyleSheet.create({
     position: 'absolute',
     justifyContent: "center",
     left: 8,
-    zIndex: 1,
+    bottom: -40,
+    zIndex: 2,
   },
   headingtext: {
     fontSize: 30,

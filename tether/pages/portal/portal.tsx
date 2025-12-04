@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   View, 
   Text, 
@@ -9,10 +9,11 @@ import {
   Image,
   Dimensions,
   StyleSheet,
+  Animated,
 } from 'react-native';
 import styles from '../../styles/styles';
 import { palette } from '../../styles/palette';
-import { Phone } from 'lucide-react-native';
+import { ChevronLeft, Phone } from 'lucide-react-native';
 import portalStyles from '../../styles/portalStyles';
 import { createClient } from '@supabase/supabase-js';
 import { Reflect } from './reflect';
@@ -22,7 +23,6 @@ const supabaseKey =
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml5amRqYWxiZGNzdGxza29pbGR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQzOTA3NTEsImV4cCI6MjA3OTk2Njc1MX0.Oh5zp-WhW8DpzXRYP4exF14cq_oscot7zJsKkzwrPK4';
 const db = createClient(supabaseUrl, supabaseKey);
 
-const Back = require('../../assets/portal/Back.png');
 const strokemap = require('../../assets/portal/strokemap.png');
 
 const together = require('../../assets/portal/together.png');
@@ -79,6 +79,12 @@ export const Portal = ({
   const [showMap, setShowMap] = useState(false);
   // when true, show the reflect page
   const [showReflect, setShowReflect] = useState(false);
+  
+  // Add ref for the main portal ScrollView
+  const scrollViewRef = useRef<ScrollView>(null);
+  
+  // Add state to track if user has accepted the invite (completed step 1)
+  const [hasAcceptedInvite, setHasAcceptedInvite] = useState(false);
 
   useEffect(() => {
     const checkExpectationsCompletion = async () => {
@@ -104,8 +110,19 @@ export const Portal = ({
       }
     };
 
+    const checkInviteAcceptance = async () => {
+      try {
+        // Add your logic here to check if user has accepted invite
+        // For now, assume it's completed if not a new portal request
+        setHasAcceptedInvite(!isNewPortalRequest);
+      } catch (error) {
+        console.error('Error checking invite acceptance:', error);
+      }
+    };
+
     checkExpectationsCompletion();
-  }, [expectationsCompleted]);
+    checkInviteAcceptance();
+  }, [expectationsCompleted, isNewPortalRequest]);
 
   // --------- REFLECT PAGE ----------
   if (showReflect) {
@@ -123,23 +140,9 @@ export const Portal = ({
         resizeMode="cover"
       >
         <SafeAreaView style={{ flex: 1 }}>
-          {/* Back to portal button - positioned at top left */}
-          <TouchableOpacity
-            onPress={() => setShowMap(false)}
-            style={{
-              position: 'absolute',
-              top: 40,
-              left: 8,
-              zIndex: 100,
-              padding: 8,
-            }}
-          >
-            <Image
-              source={Back}
-              style={{ width: 40, height: 40 }}
-              resizeMode="contain"
-            />
-          </TouchableOpacity>
+            <TouchableOpacity onPress={() => setShowMap(false)} style={styles.backButton}>
+              <ChevronLeft size={40} color={palette.slate} />
+            </TouchableOpacity>
 
           <ScrollView
             style={{ flex: 1 }}
@@ -279,21 +282,15 @@ export const Portal = ({
       <SafeAreaView style={{ flex: 1, overflow: 'visible' }}>
         <View style={styles.screen}>
           <View style={[styles.heading, { marginBottom: 0, zIndex: 100 }]}>
-            <TouchableOpacity
-              onPress={onBack}
-              style={[styles.backButton, { zIndex: 100 }]}
-            >
-              <Image
-                source={Back}
-                style={{ width: 40, height: 40 }}
-                resizeMode="contain"
-              />
+            <TouchableOpacity onPress={onBack} style={styles.backButton}>
+              <ChevronLeft size={40} color={palette.slate} />
             </TouchableOpacity>
             {/* <Text style={styles.headingtext}>Portal with {contact.name}</Text> */}
           </View>
 
           {/* Your ScrollView is still here as in the original; it was empty */}
           <ScrollView 
+            ref={scrollViewRef}
             style={{ flex: 1 }}
             showsVerticalScrollIndicator={false}
           />
@@ -374,15 +371,14 @@ export const Portal = ({
         </View>
       </View>
 
-      <TouchableOpacity 
-        onPress={onNavigateToAcceptInvite}
-        style={portalStyles.spiralTouchable}
-      >
-        <Image 
-          source={one} 
-          style={portalStyles.one} 
-        />
-      </TouchableOpacity>
+      <View style={[portalStyles.spiralTouchable, { alignSelf: 'flex-start' }]}>
+        <TouchableOpacity onPress={onNavigateToAcceptInvite}>
+          <Image 
+            source={hasAcceptedInvite ? one : lock} 
+            style={portalStyles.one} 
+          />
+        </TouchableOpacity>
+      </View>
       <Image 
         source={invite} 
         style={portalStyles.invite} 
@@ -395,7 +391,7 @@ export const Portal = ({
 
       <TouchableOpacity 
         onPress={() => {
-          if (isNewPortalRequest) {
+          if (isNewPortalRequest || !hasAcceptedInvite) {
             onNavigateToLockedStep();
           } else {
             onNavigateToExpectations();
@@ -404,7 +400,7 @@ export const Portal = ({
         style={portalStyles.expectationsTouchable}
       >
         <Image 
-          source={isNewPortalRequest ? lock : two} 
+          source={(isNewPortalRequest || !hasAcceptedInvite) ? lock : two} 
           style={portalStyles.two} 
         />
       </TouchableOpacity>
@@ -478,7 +474,12 @@ export const Portal = ({
         }}
       >
         <TouchableOpacity
-          onPress={() => setShowMap(true)}
+          onPress={() => {
+            // Scroll to bottom with animation
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+            // Then show full map after a brief delay
+            setTimeout(() => setShowMap(true), 300);
+          }}
           style={{
             paddingHorizontal: 8,
             paddingVertical: 4,
