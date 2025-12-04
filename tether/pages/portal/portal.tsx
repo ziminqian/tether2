@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import styles from '../../styles/styles';
 import { palette } from '../../styles/palette';
-import { ChevronLeft, Phone } from 'lucide-react-native';
+import { ChevronDown, ChevronLeft, ChevronUp, Phone, X } from 'lucide-react-native';
 import portalStyles from '../../styles/portalStyles';
 import { createClient } from '@supabase/supabase-js';
 import { Reflect } from './reflect';
@@ -57,6 +57,7 @@ interface PortalProps {
   onNavigateToLockedStep: () => void;
   onNavigateToAIAssurance: () => void;
   onStartCall?: () => void;
+  onComplete?: () => void;
 }
 
 export const Portal = ({
@@ -71,12 +72,11 @@ export const Portal = ({
   onNavigateToLockedStep,
   onNavigateToAIAssurance,
   onStartCall,
+  onComplete,
 }: PortalProps) => {
   const [hasCompletedExpectations, setHasCompletedExpectations] =
     useState(expectationsCompleted);
 
-  // when true, show the dedicated full-screen map view
-  const [showMap, setShowMap] = useState(false);
   // when true, show the reflect page
   const [showReflect, setShowReflect] = useState(false);
   
@@ -85,6 +85,12 @@ export const Portal = ({
   
   // Add state to track if user has accepted the invite (completed step 1)
   const [hasAcceptedInvite, setHasAcceptedInvite] = useState(false);
+  
+  // Track if we're in the lower half of the portal
+  const [isInLowerHalf, setIsInLowerHalf] = useState(false);
+  
+  // Track if complete modal is visible
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   useEffect(() => {
     const checkExpectationsCompletion = async () => {
@@ -124,6 +130,27 @@ export const Portal = ({
     checkInviteAcceptance();
   }, [expectationsCompleted, isNewPortalRequest]);
 
+  const scrollToLowerHalf = () => {
+    scrollViewRef.current?.scrollTo({ 
+      y: SCREEN_HEIGHT, 
+      animated: true 
+    });
+    setTimeout(() => setIsInLowerHalf(true), 800);
+  };
+
+  const scrollToUpperHalf = () => {
+    scrollViewRef.current?.scrollTo({ 
+      y: 0, 
+      animated: true 
+    });
+    setTimeout(() => setIsInLowerHalf(false), 800);
+  };
+
+  const handleScroll = (event: any) => {
+    const offsetY = event.nativeEvent.contentOffset.y;
+    setIsInLowerHalf(offsetY > SCREEN_HEIGHT / 2);
+  };
+
   // --------- REFLECT PAGE ----------
   if (showReflect) {
     return (
@@ -131,148 +158,7 @@ export const Portal = ({
     );
   }
 
-  // --------- FULL-SCREEN MAP VIEW (no dark overlay) ----------
-  if (showMap) {
-    return (
-      <ImageBackground
-        source={require('../../assets/backgrounds/background_vibrant.png')}
-        style={{ flex: 1, width: '100%', height: '100%' }}
-        resizeMode="cover"
-      >
-        <SafeAreaView style={{ flex: 1 }}>
-            <TouchableOpacity onPress={() => setShowMap(false)} style={styles.backButton}>
-              <ChevronLeft size={40} color={palette.slate} />
-            </TouchableOpacity>
-
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingBottom: 32,
-              alignItems: 'center',
-            }}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* Together image */}
-            <Image
-              source={together}
-              style={{
-                width: SCREEN_WIDTH * 1.3,
-                resizeMode: 'contain',
-                marginTop: 0,
-                marginBottom: 0,
-                top: -80,
-              }}
-            />
-
-            {/* Map image */}
-            <Image
-              source={maptwo}
-              style={{
-                width: SCREEN_WIDTH * 0.6,
-                height: SCREEN_HEIGHT * 0.5,
-                resizeMode: 'contain',
-                marginTop: -250,
-              }}
-            />
-          </ScrollView>
-
-          {/* Reflect white image - always shown above */}
-          <TouchableOpacity
-            onPress={() => {
-              if (isNewPortalRequest || !hasCompletedExpectations) {
-                onNavigateToLockedStep();
-              } else {
-                setShowReflect(true);
-              }
-            }}
-            style={{
-              position: 'absolute',
-              top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.1 - 120 - SCREEN_WIDTH * 0.15,
-              left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.17,
-              zIndex: 100,
-            }}
-          >
-            <Image
-              source={reflectwhite}
-              style={{
-                width: SCREEN_WIDTH * 0.3,
-                height: SCREEN_WIDTH * 0.3,
-                resizeMode: 'contain',
-              }}
-            />
-          </TouchableOpacity>
-
-          {/* Four image or Lock - conditionally shown based on lock status */}
-          {(isNewPortalRequest || !hasCompletedExpectations) ? (
-            /* Lock image - centered in the middle of the screen */
-            <TouchableOpacity
-              onPress={onNavigateToLockedStep}
-              style={{
-                position: 'absolute',
-                top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.1 - 100,
-                left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.1,
-                zIndex: 100,
-              }}
-            >
-              <Image
-                source={lock}
-                style={{
-                  width: SCREEN_WIDTH * 0.2,
-                  height: SCREEN_WIDTH * 0.2,
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableOpacity>
-          ) : (
-            /* Four image - centered in the middle of the screen */
-            <TouchableOpacity
-              onPress={() => setShowReflect(true)}
-              style={{
-                position: 'absolute',
-                top: SCREEN_HEIGHT / 2 - SCREEN_WIDTH * 0.1 - 100,
-                left: SCREEN_WIDTH / 2 - SCREEN_WIDTH * 0.1,
-                zIndex: 100,
-              }}
-            >
-              <Image
-                source={four}
-                style={{
-                  width: SCREEN_WIDTH * 0.2,
-                  height: SCREEN_WIDTH * 0.2,
-                  resizeMode: 'contain',
-                }}
-              />
-            </TouchableOpacity>
-          )}
-
-          {/* Complete button - at bottom of map view */}
-          <TouchableOpacity
-            style={{
-              position: 'absolute',
-              bottom: 30,
-              alignSelf: 'center',
-              backgroundColor: palette.slate,
-              paddingVertical: 14,
-              paddingHorizontal: 32,
-              borderRadius: 30,
-              zIndex: 10,
-              shadowColor: palette.shadow,
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.2,
-              shadowRadius: 8,
-              elevation: 4,
-            }}
-            onPress={() => setShowMap(false)}
-          >
-            <Text style={{ ...portalStyles.continueButtonText, color: palette.cream }}>Complete</Text>
-          </TouchableOpacity>
-        </SafeAreaView>
-      </ImageBackground>
-    );
-  }
-
-  // --------- ORIGINAL PORTAL SCREEN (unchanged layout) ----------
+  // --------- SINGLE SCROLLABLE PORTAL SCREEN ----------
   return (
     <ImageBackground
       source={require('../../assets/backgrounds/background_vibrant.png')}
@@ -285,20 +171,56 @@ export const Portal = ({
             <TouchableOpacity onPress={onBack} style={styles.backButton}>
               <ChevronLeft size={40} color={palette.slate} />
             </TouchableOpacity>
-            {/* <Text style={styles.headingtext}>Portal with {contact.name}</Text> */}
           </View>
 
-          {/* Your ScrollView is still here as in the original; it was empty */}
           <ScrollView 
             ref={scrollViewRef}
             style={{ flex: 1 }}
+            contentContainerStyle={{
+              height: SCREEN_HEIGHT * 2,
+            }}
             showsVerticalScrollIndicator={false}
-          />
+            scrollEnabled={true}
+            onScroll={handleScroll}
+            scrollEventThrottle={16}
+          >
+            {/* Spacer for upper half content - keeps original layout positioning */}
+            <View style={{ height: SCREEN_HEIGHT }} />
+            
+            {/* ========== LOWER HALF - FULL MAP VIEW ========== */}
+            <View style={{ height: SCREEN_HEIGHT, width: SCREEN_WIDTH, paddingHorizontal: 16, paddingBottom: 32, alignItems: 'center' }}>
+              {/* Together image */}
+              <Image
+                source={together}
+                style={{
+                  width: SCREEN_WIDTH * 1.2,
+                  resizeMode: 'contain',
+                  marginTop: 0,
+                  marginBottom: 0,
+                  top: -20,
+                  left: -8
+                }}
+              />
+
+              {/* Map image */}
+              <Image
+                source={maptwo}
+                style={{
+                  width: SCREEN_WIDTH * 0.6,
+                  height: SCREEN_HEIGHT * 0.4,
+                  resizeMode: 'contain',
+                  marginTop: -150,
+                }}
+              />
+            </View>
+          </ScrollView>
         </View>
       </SafeAreaView>
 
-      {/* ORIGINAL ABSOLUTE / OVERLAY CONTENT – same positioning as before */}
-
+      {/* ABSOLUTE POSITIONED CONTENT - UPPER HALF (original portal elements) */}
+      {/* Only show upper half elements when not in lower half */}
+      {!isInLowerHalf && (
+        <>
       {/* Two frogs in upper right */}
       <View style={portalStyles.frogsContainer}>
         <View style={portalStyles.frogPair}>
@@ -409,7 +331,7 @@ export const Portal = ({
         style={portalStyles.expectationsImage} 
       />
 
-      <View style={portalStyles.reflectContainer}> 
+      <View style={[portalStyles.reflectContainer]}> 
         <TouchableOpacity 
           onPress={() => {
             if (isNewPortalRequest || !hasCompletedExpectations) {
@@ -432,27 +354,13 @@ export const Portal = ({
       />
       
       <TouchableOpacity 
-        style={portalStyles.portalCallButton}
+        style={[portalStyles.portalCallButton, {bottom: 165, left: 163}]}
         onPress={onStartCall}
       >
-        <View style={portalStyles.portalCallButtonInner}>
-          <Phone size={32} color={palette.cream} />
+        <View style={[portalStyles.portalCallButtonInner, {}]}>
+          <Phone size={34} color={palette.cream} />
         </View>
       </TouchableOpacity>
-
-      {/* Down arrow - between call icon and see full map button */}
-      <Image
-        source={down}
-        style={{
-          position: 'absolute',
-          bottom: 60,
-          alignSelf: 'center',
-          width: 30,
-          height: 30,
-          resizeMode: 'contain',
-          zIndex: 100,
-        }}
-      />
 
       <View style={portalStyles.elementcontainer}>
         <Image 
@@ -461,11 +369,11 @@ export const Portal = ({
         />
         <Image 
           source={together} 
-          style={portalStyles.together} 
+          style={[portalStyles.together, {top: -25, width: 600, height: 400}]} 
         />
       </View>
 
-      {/* Floating button that takes you to the full-screen map view */}
+      {/* See full map button - only visible in upper half */}
       <View
         style={{
           position: 'absolute',
@@ -474,22 +382,201 @@ export const Portal = ({
         }}
       >
         <TouchableOpacity
-          onPress={() => {
-            // Scroll to bottom with animation
-            scrollViewRef.current?.scrollToEnd({ animated: true });
-            // Then show full map after a brief delay
-            setTimeout(() => setShowMap(true), 300);
-          }}
-          style={{
-            paddingHorizontal: 8,
-            paddingVertical: 4,
-            borderRadius: 12,
-            backgroundColor: 'rgba(0,0,0,0.25)',
-          }}
+          onPress={scrollToLowerHalf}
+          style={portalStyles.scrollButton}
         >
-          <Text style={{ color: 'white', fontWeight: '600', fontSize: 12 }}>See full map</Text>
+          <ChevronDown size={16} color="white" />
+          <Text style={portalStyles.scrollText}>See full map</Text>
         </TouchableOpacity>
       </View>
+        </>
+      )}
+
+      {/* ABSOLUTE POSITIONED CONTENT - LOWER HALF (map view elements) */}
+      {/* Only show lower half elements when in lower half */}
+      {isInLowerHalf && (
+        <>
+      {/* Reflect white image - positioned for lower half in bottom right */}
+      <TouchableOpacity
+        onPress={() => {
+          if (isNewPortalRequest || !hasCompletedExpectations) {
+            onNavigateToLockedStep();
+          } else {
+            setShowReflect(true);
+          }
+        }}
+        style={{
+          position: 'absolute',
+          bottom: SCREEN_HEIGHT * 0.24,
+          right: SCREEN_WIDTH * 0.1,
+          zIndex: 100,
+        }}
+      >
+        <Image
+          source={reflectwhite}
+          style={{
+            width: SCREEN_WIDTH * 0.35,
+            height: SCREEN_WIDTH * 0.27,
+            resizeMode: 'contain',
+          }}
+        />
+      </TouchableOpacity>
+
+      {/* Four image or Lock - positioned for lower half */}
+      {(isNewPortalRequest || !hasCompletedExpectations) ? (
+        <TouchableOpacity
+          onPress={onNavigateToLockedStep}
+          style={{
+            position: 'absolute',
+            bottom: SCREEN_HEIGHT * 0.19,
+            right: SCREEN_WIDTH * 0.16,
+            zIndex: 100,
+          }}
+        >
+          <Image
+            source={lock}
+            style={{
+              width: SCREEN_WIDTH * 0.18,
+              height: SCREEN_WIDTH * 0.18,
+              resizeMode: 'contain',
+            }}
+          />
+        </TouchableOpacity>
+      ) : (
+        <TouchableOpacity
+          onPress={() => setShowReflect(true)}
+          style={{
+            position: 'absolute',
+            bottom: SCREEN_HEIGHT * 0.18,
+            right: SCREEN_WIDTH * 0.2,
+            zIndex: 100,
+          }}
+        >
+          <Image
+            source={four}
+            style={{
+              width: SCREEN_WIDTH * 0.18,
+              height: SCREEN_WIDTH * 0.18,
+              resizeMode: 'contain',
+            }}
+          />
+        </TouchableOpacity>
+      )}
+
+      {/* Up arrow button - only visible in lower half */}
+      <View
+        style={{
+          position: 'absolute',
+          top: 60,
+          alignSelf: 'center',
+          zIndex: 1000,
+        }}
+      >
+        <TouchableOpacity
+          onPress={scrollToUpperHalf}
+          style={[portalStyles.scrollButton, {top: 15}]}
+        >
+          <ChevronUp size={16} color="white" />
+          <Text style={portalStyles.scrollText}>Back to Top</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* Complete button - only visible in lower half */}
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          bottom: 30,
+          alignSelf: 'center',
+          backgroundColor: palette.slate,
+          paddingVertical: 14,
+          paddingHorizontal: 32,
+          borderRadius: 30,
+          zIndex: 10,
+          shadowColor: palette.shadow,
+          shadowOffset: { width: 0, height: 4 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 4,
+        }}
+        onPress={() => setShowCompleteModal(true)}
+      >
+        <Text style={{ ...portalStyles.continueButtonText, color: palette.cream }}>Complete</Text>
+      </TouchableOpacity>
+        </>
+      )}
+      
+      {/* Complete Modal */}
+      {showCompleteModal && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 2000,
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: palette.cream,
+              borderRadius: 20,
+              padding: 32,
+              alignItems: 'center',
+              width: SCREEN_WIDTH * 0.8,
+              shadowColor: palette.shadow,
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => {
+                setShowCompleteModal(false);
+                if (onComplete) {
+                  onComplete();
+                }
+              }}
+              style={{
+                position: 'absolute',
+                top: 16,
+                right: 16,
+                zIndex: 10,
+              }}
+            >
+              <X size={28} color={palette.slate} />
+            </TouchableOpacity>
+            
+            <Text
+              style={{
+                fontSize: 28,
+                fontWeight: 'bold',
+                color: palette.slate,
+                marginTop: 8,
+                marginBottom: 16,
+                textAlign: 'center',
+              }}
+            >
+              Conversation Complete!
+            </Text>
+            
+            <Text
+              style={{
+                fontSize: 16,
+                color: palette.slate,
+                textAlign: 'center',
+                opacity: 0.8,
+              }}
+            >
+              Great work on your conversation
+            </Text>
+          </View>
+        </View>
+      )}
     </ImageBackground>
   );
 };

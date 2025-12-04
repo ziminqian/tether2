@@ -34,8 +34,8 @@ export const AcceptInvite = ({ contact, isNewPortalRequest = false, onBack, onNa
         <View style={[portalStyles.content, { paddingTop: 80, justifyContent: 'center', flex: 1, alignItems: 'center' }]}>
           <Text style={[portalStyles.title, { textAlign: 'center' }]}>
             {isNewPortalRequest
-              ? `Awaiting ${contact.name}'s acceptance of invitation`
-              : `${contact.name} accepted invite! Continue to setting expectations`
+              ? `Awaiting ${contact.name}'s${"\n"} acceptance of invitation`
+              : `${contact.name} accepted invite!${"\n"}Continue to setting expectations`
             }
           </Text>
           {!isNewPortalRequest && (
@@ -51,6 +51,7 @@ export const AcceptInvite = ({ contact, isNewPortalRequest = false, onBack, onNa
         </View>
         
         <View style={{ alignItems: 'center', marginBottom: 40 }}>
+          {/*
           <TouchableOpacity onPress={onBack} style={{ alignItems: 'center' }}>
             <Image 
               source={spiral} 
@@ -59,7 +60,7 @@ export const AcceptInvite = ({ contact, isNewPortalRequest = false, onBack, onNa
             <Text style={[portalStyles.backToPortalText, { marginTop: 8 }]}>
               Back to Portal
             </Text>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
       </View>
     </ImageBackground>

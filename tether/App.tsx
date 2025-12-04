@@ -113,6 +113,12 @@ function AppContent() {
     setActiveTab('friends');
   };
 
+  const handleCompleteConversation = () => {
+    setShowPortal(false);
+    setSelectedContact(null);
+    setActiveTab('home');
+  };
+
   const handleNavigateToExpectations = () => {
     setShowExpectationsIntro(true);
     setShowPortal(false);
@@ -331,6 +337,7 @@ function AppContent() {
               onNavigateToLockedStep={handleNavigateToLockedStep}
               onNavigateToAIAssurance={handleNavigateToAIAssurance}
               onStartCall={handleStartCall}
+              onComplete={handleCompleteConversation}
             />
             <ConfirmCallModal
               visible={showConfirmCallModal}
@@ -516,6 +523,8 @@ export default function App() {
   const handleSignupSuccess = () => {
     setCurrentScreen('app');
   };
+
+  
 
   const handleLoginSuccess = () => {
     setCurrentScreen('app');

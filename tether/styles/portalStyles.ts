@@ -230,6 +230,16 @@ const portalStyles = StyleSheet.create({
     width: "100%",
     height: "80%",
   },
+  scrollButton:{
+    paddingHorizontal: 15,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  scrollText:{ color: 'white', fontWeight: '600', fontSize: 16, fontFamily: chosenFont },
     message: {
     fontSize: 20,
     fontStyle: "italic",
@@ -431,8 +441,8 @@ const portalStyles = StyleSheet.create({
   zIndex: 100,
 },
 portalCallButtonInner: {
-  width: 80,
-  height: 80,
+  width: 85,
+  height: 85,
   borderRadius: 40,
   backgroundColor: palette.slate,
   justifyContent: 'center',
