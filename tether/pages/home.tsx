@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, Pressable, SafeAreaView, TouchableOpacity, TextInput, ScrollView, Image, ImageBackground, StyleSheet } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
+import { View, Text, SafeAreaView, TouchableOpacity, TextInput, ScrollView, Image, ImageBackground, StyleSheet, Animated } from 'react-native';
 import styles from '../styles/styles';
-import { ChevronDown, ChevronRight, Search, Plus } from 'lucide-react-native';
+import { ChevronDown, ChevronRight, Search, Plus, Clock } from 'lucide-react-native';
 import theme from '../styles/theme';
 import { palette } from '../styles/palette';
 
@@ -12,47 +12,203 @@ interface HomeProps {
 }
 
 export const Home = ({ onBack, onNext, onSearch }: HomeProps) => {
-  
   const activePortals = [
-    { id: '1', name: 'Fayez', color: palette.teal },
-  ];;
+    { id: '1', name: 'Fayez', color: palette.teal, lastActive: '2 hours ago' },
+  ];
 
+  const requestPortals = [
+    { id: '1', name: 'Alan', color: palette.beige, requestTime: 'Just now' },
+  ];
 
   const [showActivePortals, setShowActivePortals] = useState(true);
   const [showRequestPortals, setShowRequestPortals] = useState(true);
-
-  const requestPortals = [
-    { id: '1', name: 'Alan', color: palette.beige },
-  ];
   const [input, setInput] = useState<string>("");
+  const [filteredActivePortals, setFilteredActivePortals] = useState(activePortals);
+  const [filteredRequestPortals, setFilteredRequestPortals] = useState(requestPortals);
+  const [blinkStates, setBlinkStates] = useState<boolean[]>(
+    [...activePortals, ...requestPortals].map(() => false)
+  );
+
+  // Portal rotation animation
+  const rotateAnim = useRef(new Animated.Value(0)).current;
+  const pulseAnim = useRef(new Animated.Value(1)).current;
+  const glowAnim = useRef(new Animated.Value(0)).current;
+
+  // Bounce animation for frogs
+  const bounceAnims = useRef(
+    [...activePortals, ...requestPortals].map(() => new Animated.Value(0))
+  ).current;
+
+  useEffect(() => {
+    // Rotate portal slowly
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 20000,
+        useNativeDriver: true,
+      })
+    ).start();
+
+    // Pulse portal
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulseAnim, {
+          toValue: 1.05,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(pulseAnim, {
+          toValue: 1,
+          duration: 2000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Glow effect for portal
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(glowAnim, {
+          toValue: 1,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(glowAnim, {
+          toValue: 0,
+          duration: 3000,
+          useNativeDriver: true,
+        }),
+      ])
+    ).start();
+
+    // Bounce frogs
+    bounceAnims.forEach((anim, index) => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(anim, {
+            toValue: -3,
+            duration: 1000 + (index * 200),
+            useNativeDriver: true,
+          }),
+          Animated.timing(anim, {
+            toValue: 0,
+            duration: 1000 + (index * 200),
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    });
+
+    // Blinking animation for frogs
+    const blinkInterval = setInterval(() => {
+      const newBlinkStates = blinkStates.map(() => Math.random() > 0.7); // 30% chance to blink
+      setBlinkStates(newBlinkStates);
+      
+      // Reset blink after 150ms
+      setTimeout(() => {
+        setBlinkStates(blinkStates.map(() => false));
+      }, 150);
+    }, 3000); // Check every 3 seconds
+
+    return () => clearInterval(blinkInterval);
+  }, []);
+
+  useEffect(() => {
+    // Filter portals based on search input
+    if (input.trim() === '') {
+      setFilteredActivePortals(activePortals);
+      setFilteredRequestPortals(requestPortals);
+    } else {
+      const searchLower = input.toLowerCase();
+      setFilteredActivePortals(
+        activePortals.filter(portal => 
+          portal.name.toLowerCase().includes(searchLower)
+        )
+      );
+      setFilteredRequestPortals(
+        requestPortals.filter(portal => 
+          portal.name.toLowerCase().includes(searchLower)
+        )
+      );
+    }
+  }, [input]);
 
   const handleSearchSubmit = () => {
-        if (input.trim()) {
-            onSearch(input.trim());
-        }
-    };
+    if (input.trim()) {
+      onSearch(input.trim());
+    }
+  };
 
   const handleAddPortal = () => {
-    // stuff
     console.log('Add new portal');
   };
 
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  });
+
+  const glowOpacity = glowAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0.3, 0.8]
+  });
+
+  const renderFrog = (contact: any, index: number, isBlinking: boolean) => {
+    const bounceAnim = bounceAnims[index];
+
+    return (
+      <Animated.View 
+        style={[
+          styles.avatar,
+          { transform: [{ translateY: bounceAnim }] }
+        ]}
+      >
+        <Image 
+          source={require('../assets/frogs/cute_frog_body.png')}
+          style={[styles.profileAvatarImage, {height: 37}, {transform: [{ translateY: 6}, {translateX: -5}]}]}
+          resizeMode="contain"
+          tintColor={contact.color}
+        />
+        <Image 
+          source={isBlinking 
+            ? require('../assets/frogs/cute_frog_blinking.png')
+            : require('../assets/frogs/cute_frog_outline.png')
+          }
+          style={[styles.profileAvatarImage, { position: 'absolute', height: 46, }, {transform: [{ translateY: 6}, {translateX: -5}]}]}
+          resizeMode="contain"
+        />
+        <Image 
+          source={require('../assets/frogs/cute_frog_cheeks.png')}
+          style={[styles.profileAvatarImage, { position: 'absolute', height: 44,}, {transform: [{ translateY: 4}, {translateX: -3}]}]}
+        />
+      </Animated.View>
+    );
+  };
 
   return (
     <ImageBackground 
-          source= {require("../assets/backgrounds/light_ombre.png")}
-          style={{ flex: 1, width: '100%', height: '100%' }}
-          resizeMode='cover'
-        >
-    <SafeAreaView style={{flex: 1}}>
-      
-      <View style={[styles.screen, { overflow: 'visible' }]}>
-        <View style={styles.heading}>
-          <Text style={localStyles.tetherTitle}>Tether</Text>
-        </View>
-        <View style={[styles.search]}>
-          <Search size={20} style={{margin: 5}} color={theme.button}></Search>
-          <TextInput 
+      source={require("../assets/backgrounds/light_ombre.png")}
+      style={{ flex: 1, width: '100%', height: '100%' }}
+      resizeMode='cover'
+    >
+      <SafeAreaView style={{flex: 1}}>
+        <View style={[styles.screen, { overflow: 'visible' }]}>
+          <View style={[styles.heading, {flexDirection: "column"}]}>
+            <Text style={styles.tetherTitle}>Tether</Text>
+            <Text style={styles.subtitle}>Safe Space for Difficult Conversations </Text>
+          </View>
+          
+          <View style={[styles.search, {
+            backgroundColor: 'rgba(255, 255, 255, 0.7)',
+            borderRadius: 16,
+            shadowColor: palette.shadow,
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 2,
+          }]}>
+            <Search size={20} style={{margin: 5}} color={palette.slate}></Search>
+            <TextInput 
               style={[styles.text, { flex: 1 }]} 
               value={input} 
               onChangeText={setInput}
@@ -60,158 +216,154 @@ export const Home = ({ onBack, onNext, onSearch }: HomeProps) => {
               returnKeyType="search"
               placeholder={"Search conversations"} 
               placeholderTextColor={theme.textSecondary}
-          />
-        </View>
-        <ScrollView>
-          <TouchableOpacity style={styles.dropdown} onPress={() => setShowActivePortals(!showActivePortals)}>
+            />
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+            <TouchableOpacity 
+              style={styles.dropdown} 
+              onPress={() => setShowActivePortals(!showActivePortals)}
+            >
               {showActivePortals ? 
-                <ChevronDown color={theme.button}/> : 
-                <ChevronRight color={theme.button}/>
+                <ChevronDown color={palette.slate}/> : 
+                <ChevronRight color={palette.slate}/>
               }
               <Text style={styles.subheading}>Active Portals</Text>
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{filteredActivePortals.length}</Text>
+              </View>
             </TouchableOpacity>
+
             {showActivePortals && (
-              activePortals.length === 0 ? (
+              filteredActivePortals.length === 0 ? (
                 <View style={styles.empty}>
-                  <Text style={styles.text}>No active portals</Text>
+                  <Animated.Image 
+                    source={require('../assets/other/portal.png')}
+                    style={{ 
+                      width: 100, 
+                      height: 100, 
+                      opacity: 0.3, 
+                      marginBottom: 12,
+                      transform: [{ rotate: spin }]
+                    }}
+                    resizeMode="contain"
+                  />
+                  <Text style={[styles.text, { opacity: 0.6 }]}>
+                    {input ? 'No portals found' : 'No active portals'}
+                  </Text>
                 </View>
               ) : (
-                activePortals.map((contact) => (
+                filteredActivePortals.map((contact, index) => (
                   <TouchableOpacity 
                     key={contact.id} 
-                    style={styles.contactCard} 
+                    style={styles.portalCard}
                     onPress={() => onNext(contact)}
                   >
-                    <View style={styles.avatar}>
-                      <Image 
-                        source={require('../assets/frogs/cute_frog_body.png')}
-                        style={[styles.profileAvatarImage, {height: 37}, {transform: [{ translateY: 6}, {translateX: -5}]}]}
-                        resizeMode="contain"
-                        tintColor={contact.color}
-                      />
-                      <Image 
-                        source={require('../assets/frogs/cute_frog_outline.png')}
-                        style={[styles.profileAvatarImage, { position: 'absolute', height: 46, }, {transform: [{ translateY: 6}, {translateX: -5}]}]}
-                        resizeMode="contain"
-                      />
-                      <Image 
-                        source={require('../assets/frogs/cute_frog_cheeks.png')}
-                        style={[styles.profileAvatarImage, { position: 'absolute', height: 44,}, {transform: [{ translateY: 4}, {translateX: -3}]}]}
-                      />
+                    <View style={styles.portalCardContent}>
+                      {renderFrog(contact, index, blinkStates[index])}
+                      <View style={{ flex: 1, marginLeft: 12 }}>
+                        <Text style={styles.portalName}>{contact.name}</Text>
+                        <View style={styles.statusRow}>
+                          <Clock size={12} color={palette.mutedBrown} />
+                          <Text style={[styles.requestText, {color: palette.teal}]}>{contact.lastActive}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.activeIndicator} />
                     </View>
-                    <Text style={styles.text}>{contact.name}</Text>
                   </TouchableOpacity>
                 ))
               )
             )}
-          <TouchableOpacity style={styles.dropdown} onPress={() => setShowRequestPortals(!showRequestPortals)}>
-            {showRequestPortals ? 
-                <ChevronDown color={theme.button}/> : 
-                <ChevronRight color={theme.button}/>
+
+            <TouchableOpacity 
+              style={styles.dropdown} 
+              onPress={() => setShowRequestPortals(!showRequestPortals)}
+            >
+              {showRequestPortals ? 
+                <ChevronDown color={palette.slate}/> : 
+                <ChevronRight color={palette.slate}/>
               }
-            <Text style={styles.subheading}>New Portal Requests</Text>
-          </TouchableOpacity>
-          {showRequestPortals && (
-              requestPortals.length === 0 ? (
+              <Text style={styles.subheading}>New Portal Requests</Text>
+              {filteredRequestPortals.length > 0 && (
+                <View style={[styles.badge, { backgroundColor: palette.orange }]}>
+                  <Text style={styles.badgeText}>{filteredRequestPortals.length}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+
+            {showRequestPortals && (
+              filteredRequestPortals.length === 0 ? (
                 <View style={styles.empty}>
-                  <Text style={styles.text}>No new portal requests</Text>
+                  <Image 
+                    source={require('../assets/frogs/cute_frog_body.png')}
+                    style={{ width: 80, height: 80, opacity: 0.3, marginBottom: 12 }}
+                    resizeMode="contain"
+                    tintColor={palette.beige}
+                  />
+                  <Text style={[styles.text, { opacity: 0.6 }]}>
+                    {input ? 'No requests found' : 'No new portal requests'}
+                  </Text>
                 </View>
               ) : (
-                requestPortals.map((invite) => (
+                filteredRequestPortals.map((invite, index) => (
                   <TouchableOpacity 
                     key={invite.id} 
-                    style={styles.contactCard} 
+                    style={[styles.portalCard, styles.requestCard]}
                     onPress={() => onNext(invite)}
                   >
-                    <View style={styles.avatar}>
-                      <Image 
-                        source={require('../assets/frogs/cute_frog_body.png')}
-                        style={[styles.profileAvatarImage, {height: 37}, {transform: [{ translateY: 6}, {translateX: -5}]}]}
-                        resizeMode="contain"
-                        tintColor={invite.color}
-                      />
-                      <Image 
-                        source={require('../assets/frogs/cute_frog_outline.png')}
-                        style={[styles.profileAvatarImage, { position: 'absolute', height: 46, }, {transform: [{ translateY: 6}, {translateX: -5}]}]}
-                        resizeMode="contain"
-                      />
-                      <Image 
-                        source={require('../assets/frogs/cute_frog_cheeks.png')}
-                        style={[styles.profileAvatarImage, { position: 'absolute', height: 44,}, {transform: [{ translateY: 4}, {translateX: -3}]}]}
-                      />
+                    <View style={styles.portalCardContent}>
+                      {renderFrog(invite, activePortals.length + index, blinkStates[activePortals.length + index])}
+                      <View style={{ flex: 1, marginLeft: 12 }}>
+                        <Text style={styles.portalName}>{invite.name}</Text>
+                        <Text style={styles.requestText}>Wants to connect</Text>
+                      </View>
+                      <View style={styles.newIndicator}>
+                        <Text style={styles.newText}>NEW</Text>
+                      </View>
                     </View>
-                    <Text style={styles.text}>{invite.name}</Text>
                   </TouchableOpacity>
-                
                 ))
               )
             )}
-          
-        </ScrollView>
-        <View style={localStyles.bottomSection}>
-            <Image 
+            <View style={{ height: 220 }} />
+          </ScrollView>
+
+
+         <View style={styles.bottomSection}>
+          {/* 
+            <Animated.View style={{
+              position: 'absolute',
+              top: 20,
+              width: 220,
+              height: 220,
+              borderRadius: 110,
+              backgroundColor: palette.slate,
+              opacity: glowOpacity,
+              transform: [{ scale: pulseAnim }]
+            }} />
+            <Animated.Image 
               source={require("../assets/other/portal.png")} 
-              style={localStyles.portal}
+              style={[
+                styles.portal,
+                {
+                  transform: [
+                    { rotate: spin },
+                    { scale: pulseAnim }
+                  ]
+                }
+              ]}
               resizeMode="contain"
-            />
+            />*/}
             <TouchableOpacity 
-              style={localStyles.addPortalButton}
+              style={styles.addPortalButton}
               onPress={handleAddPortal}
             >
               <Plus size={20} color={palette.cream} />
-              <Text style={localStyles.addPortalButtonText}>Start a new portal</Text>
+              <Text style={styles.addPortalButtonText}>Start a new portal</Text>
             </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </SafeAreaView>
+      </SafeAreaView>
     </ImageBackground>
   );
 };
-
-const localStyles = StyleSheet.create({
-  tetherTitle: {
-    fontSize: 50,
-    fontWeight: '700',
-    textAlign: 'center',
-    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
-    color: palette.slate,
-    marginBottom: 8,
-  },
-
-  bottomSection: {
-    paddingHorizontal: 10,
-    paddingBottom: 10,
-    backgroundColor: 'transparent',
-    overflow: 'visible',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  portal: {
-    width: 200,
-    height: 200,
-    alignSelf: 'center',
-    marginBottom: 50,
-    resizeMode: 'contain',
-  },
-  addPortalButton: {
-    backgroundColor: palette.slate,
-    padding: 14,
-    borderRadius: 25,
-    alignItems: 'center',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    shadowColor: palette.shadow,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 4,
-    width: '90%',
-  },
-  addPortalButtonText: {
-    color: palette.cream,
-    fontSize: 16,
-    fontWeight: '700',
-    fontFamily: "../assets/fonts/AbhayaLibre-Bold.ttf",
-  },
-});
