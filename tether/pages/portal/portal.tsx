@@ -43,8 +43,7 @@ const assurances = require('../../assets/portal/assurances.png');
 const three = require('../../assets/portal/3.png');
 const four = require('../../assets/portal/four.png');
 const reflectwhite = require('../../assets/portal/reflectwhite.png');
-const down = require('../../assets/portal/down.png');
-const maptwo = require('../../assets/portal/maptwo.png');
+const newbottom = require('../../assets/portal/newbottom.png');
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -325,12 +324,13 @@ export const Portal = ({
                 }}
               />
               <Image
-                source={maptwo}
+                source={newbottom}
                 style={{
-                  width: SCREEN_WIDTH * 0.6,
-                  height: SCREEN_HEIGHT * 0.4,
+                  width: SCREEN_WIDTH * 0.4,
+                  height: SCREEN_HEIGHT * 0.3,
                   resizeMode: 'contain',
                   marginTop: -150,
+                  left: -20,
                 }}
               />
             </View>
@@ -418,8 +418,8 @@ export const Portal = ({
           )}
         </TouchableOpacity>
       </View>
-      <Image source={invite} style={portalStyles.invite} />
-      <Image source={spiral} style={portalStyles.spiral} />
+      <Image source={invite} style={portalStyles.invite} resizeMode="contain" />
+      <Image source={spiral} style={portalStyles.spiral} resizeMode="contain" />
 
       <TouchableOpacity 
         onPress={() => {
@@ -441,7 +441,7 @@ export const Portal = ({
           renderStepIcon(progress.expectationsCompleted, two, 0.18)
         )}
       </TouchableOpacity>
-      <Image source={expectations} style={portalStyles.expectationsImage} />
+      <Image source={expectations} style={portalStyles.expectationsImage} resizeMode="contain" />
 
       <View style={[portalStyles.reflectContainer]}> 
         <TouchableOpacity 
@@ -461,30 +461,30 @@ export const Portal = ({
           )}
         </TouchableOpacity>
       </View>
-      <Image source={assurances} style={portalStyles.assurances} />
+      <Image source={assurances} style={portalStyles.assurances} resizeMode="contain" />
       
       <TouchableOpacity 
         style={[
           portalStyles.portalCallButton, 
-          {bottom: 165, left: 163},
-          !progress.expectationsCompleted && { opacity: 1 }
+          {bottom: 140, left: 150},
+          !progress.assurancesCompleted && { opacity: 1 }
         ]}
         onPress={() => {
-          if (!progress.expectationsCompleted) {
+          if (!progress.assurancesCompleted) {
             onNavigateToLockedStep();
           } else {
             onStartCall?.();
           }
         }}
       >
-        <View style={[portalStyles.portalCallButtonInner, {backgroundColor: !progress.expectationsCompleted ? '#a2a2a2ff' : palette.slate}]}>
+        <View style={[portalStyles.portalCallButtonInner, {backgroundColor: !progress.assurancesCompleted ? '#ABB6A0' : palette.slate}]}>
           <Phone size={34} color={palette.cream} />
         </View>
       </TouchableOpacity>
 
       <View style={portalStyles.elementcontainer}>
-        <Image source={strokemap} style={portalStyles.strokemap} />
-        <Image source={together} style={[portalStyles.together, {top: -25, width: 600, height: 400}]} />
+        <Image source={strokemap} style={portalStyles.strokemap} resizeMode="contain" />
+        <Image source={together} style={[portalStyles.together, {top: -25, width: 600, height: 400}]} resizeMode="contain" />
       </View>
 
       <View style={{ position: 'absolute', bottom: 20, alignSelf: 'center' }}>
