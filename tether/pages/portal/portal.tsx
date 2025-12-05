@@ -43,10 +43,7 @@ const assurances = require('../../assets/portal/assurances.png');
 const three = require('../../assets/portal/3.png');
 const four = require('../../assets/portal/four.png');
 const reflectwhite = require('../../assets/portal/reflectwhite.png');
-<<<<<<< HEAD
-=======
 const down = require('../../assets/portal/down.png');
->>>>>>> 3eba979707dd6a522e4f78825fbe4ac894f20254
 const newbottom = require('../../assets/portal/newbottom.png');
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -471,11 +468,7 @@ export const Portal = ({
         style={[
           portalStyles.portalCallButton, 
           {bottom: 140, left: 150},
-<<<<<<< HEAD
           !progress.assurancesCompleted && { opacity: 1 }
-=======
-          !progress.expectationsCompleted && { opacity: 1 }
->>>>>>> 3eba979707dd6a522e4f78825fbe4ac894f20254
         ]}
         onPress={() => {
           if (!progress.assurancesCompleted) {
@@ -485,11 +478,7 @@ export const Portal = ({
           }
         }}
       >
-<<<<<<< HEAD
         <View style={[portalStyles.portalCallButtonInner, {backgroundColor: !progress.assurancesCompleted ? '#ABB6A0' : palette.slate}]}>
-=======
-        <View style={[portalStyles.portalCallButtonInner, {backgroundColor: !progress.expectationsCompleted ? '#ABB6A0' : palette.slate}]}>
->>>>>>> 3eba979707dd6a522e4f78825fbe4ac894f20254
           <Phone size={34} color={palette.cream} />
         </View>
       </TouchableOpacity>
