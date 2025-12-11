@@ -10,11 +10,13 @@ import {
   Modal,
   KeyboardAvoidingView,
   Image,
-  Platform
+  Platform,
+  ActivityIndicator
 } from 'react-native';
 import styles from '../styles/styles';
 import { palette } from '../styles/palette';
 import { ChevronLeft, Send, X, HeartHandshake, Sparkles } from 'lucide-react-native';
+import { draftMessage } from '../utils/gemini';
 
 interface MessageProps {
   contact: { id: string; name: string };
@@ -39,29 +41,51 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
   const [inputText, setInputText] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [generatedMessage, setGeneratedMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSend = () => {
-    if (inputText.trim()) {
+  const handleSend = async () => {
+    if (inputText.trim() && !isLoading) {
+      const userInput = inputText.trim();
+      
       // Add user message
       const userMessage: ChatMessage = {
         id: Date.now().toString(),
-        text: inputText.trim(),
+        text: userInput,
         isAI: false
       };
-      setMessages([...messages, userMessage]);
+      const updatedMessages = [...messages, userMessage];
+      setMessages(updatedMessages);
+      setIsLoading(true);
+      setInputText('');
       
-      // Simulate AI response
-      setTimeout(() => {
+      try {
+        // Call Gemini AI to draft the message
+        const draftedMessage = await draftMessage(
+          contact.name,
+          userInput,
+          messages
+        );
+        
+        // Add AI response with the drafted message
         const aiResponse: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          text: `Sure, here's one version:\n"Hey ${contact.name}, I've been thinking about what happened yesterday. I don't want that fight to sit between us or mess with our friendship. Can we talk it through when you're free?"`,
+          text: `Sure, here's one version:\n\n"${draftedMessage}"`,
           isAI: true
         };
         setMessages(prev => [...prev, aiResponse]);
-        setGeneratedMessage(`Hey ${contact.name}, I've been thinking about what happened yesterday. I don't want that fight to sit between us or mess with our friendship. Can we talk it through when you're free?`);
-      }, 1000);
-      
-      setInputText('');
+        setGeneratedMessage(draftedMessage);
+      } catch (error) {
+        console.error('Error generating message:', error);
+        // Add error message
+        const errorResponse: ChatMessage = {
+          id: (Date.now() + 1).toString(),
+          text: `I'm sorry, I encountered an error while generating your message. Please try again or check your internet connection.`,
+          isAI: true
+        };
+        setMessages(prev => [...prev, errorResponse]);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -135,9 +159,18 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
                 placeholder="Draft a message, or ask Tether AI for some help"
                 placeholderTextColor={palette.mutedBrown}
                 multiline
+                editable={!isLoading}
               />
-              <TouchableOpacity onPress={handleSend} style={styles.sendButton}>
-                <Send size={26} color={palette.slate} />
+              <TouchableOpacity 
+                onPress={handleSend} 
+                style={styles.sendButton}
+                disabled={isLoading || !inputText.trim()}
+              >
+                {isLoading ? (
+                  <ActivityIndicator size="small" color={palette.slate} />
+                ) : (
+                  <Send size={26} color={palette.slate} />
+                )}
               </TouchableOpacity>
             </View>
             <View style={{alignItems: "center"}}>
