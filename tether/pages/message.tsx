@@ -59,6 +59,17 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
       setInputText('');
       
       try {
+        // Check if user is asking for a draft or providing feedback/refinement
+        const isRefinement = generatedMessage && (
+          userInput.toLowerCase().includes('change') ||
+          userInput.toLowerCase().includes('different') ||
+          userInput.toLowerCase().includes('revise') ||
+          userInput.toLowerCase().includes('update') ||
+          userInput.toLowerCase().includes('make it') ||
+          userInput.toLowerCase().includes('more') ||
+          userInput.toLowerCase().includes('less')
+        );
+
         // Call Gemini AI to draft the message
         const draftedMessage = await draftMessage(
           contact.name,
@@ -69,7 +80,9 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
         // Add AI response with the drafted message
         const aiResponse: ChatMessage = {
           id: (Date.now() + 1).toString(),
-          text: `Sure, here's one version:\n\n"${draftedMessage}"`,
+          text: isRefinement 
+            ? `Here's a revised version:\n\n"${draftedMessage}"\n\nWould you like me to adjust anything else?`
+            : `Sure, here's a draft invitation message:\n\n"${draftedMessage}"\n\nWould you like me to change anything about it?`,
           isAI: true
         };
         setMessages(prev => [...prev, aiResponse]);
@@ -156,7 +169,9 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
                 style={styles.chatInput}
                 value={inputText}
                 onChangeText={setInputText}
-                placeholder="Draft a message, or ask Tether AI for some help"
+                placeholder={generatedMessage 
+                  ? "Ask to revise the message, or type 'send' to use this version..."
+                  : "What do you want to talk about with them? I'll help draft an invitation message."}
                 placeholderTextColor={palette.mutedBrown}
                 multiline
                 editable={!isLoading}
@@ -173,14 +188,24 @@ export const Message = ({ contact, onNext, onBack }: MessageProps) => {
                 )}
               </TouchableOpacity>
             </View>
-            <View style={{alignItems: "center"}}>
+            <View style={{alignItems: "center", marginTop: 10}}>
+              {generatedMessage && (
+                <View style={{marginBottom: 10, paddingHorizontal: 20}}>
+                  <Text style={[styles.messageText, {textAlign: 'center', fontStyle: 'italic', color: palette.mutedBrown}]}>
+                    Drafted message: "{generatedMessage}"
+                  </Text>
+                </View>
+              )}
               <TouchableOpacity 
                 onPress={handleSendInvite}
-                style={[styles.loginButton, {width: 200}]}
+                style={[
+                  styles.loginButton, 
+                  {width: 200, opacity: generatedMessage ? 1 : 0.5}
+                ]}
                 disabled={!generatedMessage}
               >
-              <HeartHandshake size={30} color={palette.cream}/>
-              <Text style={styles.loginButtonText}>Send Invite</Text>
+                <HeartHandshake size={30} color={palette.cream}/>
+                <Text style={styles.loginButtonText}>Send Invite</Text>
               </TouchableOpacity>
             </View>
           </View>
